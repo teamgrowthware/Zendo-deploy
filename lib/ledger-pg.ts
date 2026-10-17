@@ -1,6 +1,8 @@
 import pg from "pg";
 import { readDatabaseUrl, writeDatabaseUrl } from "./db-route";
 import { journalRows } from "./double-entry";
+import { safeDiagnostic } from "./errors";
+import { logEvent } from "./log";
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS documents (
@@ -171,7 +173,9 @@ async function readyWrite(): Promise<pg.Pool> {
     const startedAt = Date.now();
     schemaReady = current.query(SCHEMA).then(() => undefined).catch((error) => {
       schemaReady = null;
-      throw withDatabasePhase(error, "schema_initialize", startedAt);
+      const tagged = withDatabasePhase(error, "schema_initialize", startedAt);
+      logEvent("postgres_schema_failed", safeDiagnostic(tagged));
+      throw tagged;
     });
   }
   await schemaReady;
@@ -273,7 +277,9 @@ export async function persistLedgerPg(body: string, accounts: Record<string, Acc
         /* rollback already finished */
       }
     }
-    throw withDatabasePhase(error, phase, startedAt);
+    const tagged = withDatabasePhase(error, phase, startedAt);
+    logEvent("postgres_write_failed", safeDiagnostic(tagged));
+    throw tagged;
   } finally {
     client?.release();
   }

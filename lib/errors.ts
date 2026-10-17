@@ -14,7 +14,7 @@ export class ZendoError extends Error {
   }
 }
 
-function safeDiagnostic(error: unknown) {
+export function safeDiagnostic(error: unknown) {
   const candidate = error instanceof Error ? error.message : "unknown";
   const containsSensitiveValue = /(?:postgres(?:ql)?:\/\/|password|secret|token|authorization|cookie|phrase|private key|\bpin\b)/i.test(candidate);
   const row = error as { code?: unknown; name?: unknown; zendoDbPhase?: unknown; zendoDbElapsedMs?: unknown } | null;
