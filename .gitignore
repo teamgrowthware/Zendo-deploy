@@ -33,8 +33,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Environment files. Keep only the variable-name template tracked.
+.env
+.env.*
 !.env.example
 
 # vercel
@@ -46,6 +47,12 @@ next-env.d.ts
 
 # chain state, secrets, and local mail
 /data
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
 android/.gradle
 android/.gradle-user
 android/app/build
