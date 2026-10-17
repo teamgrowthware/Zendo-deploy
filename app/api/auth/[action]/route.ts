@@ -22,7 +22,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ action: string 
     }
     throw new ZendoError("Not found.", 404);
   } catch (error) {
-    return fail(error);
+    return fail(error, `auth.${action}`);
   }
 }
 
@@ -103,6 +103,6 @@ export async function POST(req: Request, ctx: { params: Promise<{ action: string
     }
     throw new ZendoError("Not found.", 404);
   } catch (error) {
-    return fail(error);
+    return fail(error, `auth.${action}`);
   }
 }
