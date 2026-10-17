@@ -1,0 +1,16 @@
+name = "zendo-edge"
+main = "cloudflare/worker.mjs"
+compatibility_date = "2026-10-01"
+
+# Create the database with: wrangler d1 create zendo-ledger
+# Then paste the database_id here and apply cloudflare/d1-schema.sql.
+# The Node process uses the same tables in data/zendo.sqlite.
+[[d1_databases]]
+binding = "DB"
+database_name = "zendo-ledger"
+database_id = "00000000-0000-4000-8000-000000000000"
+
+[vars]
+# Set the real origin with: wrangler secret put ORIGIN
+# Example origin: https://app.example.com
+ORIGIN = "http://127.0.0.1:38471"

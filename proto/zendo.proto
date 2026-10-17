@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package zendo;
+
+// Internal status for a service on this node. Polygon event streaming stays on the bridge observer.
+service Chain {
+  rpc Status (StatusRequest) returns (StatusReply);
+}
+
+message StatusRequest {}
+
+message StatusReply {
+  string network_id = 1;
+  int32 height = 2;
+}

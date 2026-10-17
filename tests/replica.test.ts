@@ -1,0 +1,40 @@
+import assert from "node:assert/strict";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import test from "node:test";
+import { GET } from "../app/api/fleet/snapshot/route.ts";
+
+test("a region serves the same app and commits writes on the primary", async () => {
+  process.env.ZENDO_DISABLE_TIMER = "1";
+  delete process.env.ZENDO_ROLE;
+  delete process.env.ZENDO_SHARD_COUNT;
+  process.env.ZENDO_FLEET_SECRET = "region-secret";
+  process.env.ZENDO_DATA_DIR = mkdtempSync(path.join(tmpdir(), "zendo-primary-"));
+  const engine = await import("../lib/engine.ts");
+  await engine.testingReset();
+  const locked = await GET(new Request("http://127.0.0.1/api/fleet/snapshot"));
+  assert.equal(locked.status, 401);
+  const opened = await GET(new Request("http://127.0.0.1/api/fleet/snapshot", { headers: { authorization: "Bearer region-secret" } }));
+  assert.equal(opened.status, 200);
+  const snap = await opened.text();
+  assert.match(snap, /operator@zendo.dev/);
+
+  process.env.ZENDO_ROLE = "replica";
+  process.env.ZENDO_DATA_DIR = mkdtempSync(path.join(tmpdir(), "zendo-region-"));
+  await engine.testingReset();
+  const { ZENDO_OPERATOR } = await import("../lib/seed.ts");
+  const before = await engine.userByEmail(ZENDO_OPERATOR.email).catch(() => null);
+  assert.equal(before, null);
+  await assert.rejects(() => engine.send("usr_operator", `znd1${"ab".repeat(19)}`, "ZCOIN", "1"), /primary/);
+  await engine.installSnapshot(snap);
+  const copied = await engine.userByEmail(ZENDO_OPERATOR.email);
+  assert.equal(copied?.email, ZENDO_OPERATOR.email);
+  const audit = await engine.auditSupply();
+  assert.equal(audit.ok, true, `${audit.accounted} vs ${audit.supply}`);
+  await assert.rejects(() => engine.send(copied!.id, `znd1${"cd".repeat(19)}`, "ZCOIN", "0.01"), /primary/);
+  const refused = await GET(new Request("http://127.0.0.1/api/fleet/snapshot", { headers: { authorization: "Bearer region-secret" } }));
+  assert.equal(refused.status, 409);
+  delete process.env.ZENDO_ROLE;
+  delete process.env.ZENDO_FLEET_SECRET;
+});

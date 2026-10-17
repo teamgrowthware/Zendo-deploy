@@ -1,0 +1,31 @@
+App Store listing placeholders. Replace every line in App Store Connect. This file is not a submission.
+
+Name: Zendo
+Subtitle: Chain, coin, and launchpad
+Bundle ID: app.zendo.ios
+SKU: zendo-ios
+Primary category: Finance
+Secondary category: Utilities
+Privacy policy URL: https://YOUR_DOMAIN/privacy
+Support URL: https://YOUR_DOMAIN/contact
+Marketing URL: https://YOUR_DOMAIN
+Copyright: YOUR_NAME
+Age rating: answer the questionnaire. The app opens an account-based ledger.
+
+Description:
+Zendo opens your zendo-1 node in WKWebView. The wallet, ZendoCoin, the launchpad, the explorer, staking, governance, and the bridge are the same website the browser uses. This shell does not add a second ledger and does not download executable code.
+
+Keywords: zendo,wallet,chain
+Promotional text: Open the Zendo node from the home screen.
+
+Review notes for App Review:
+- The binary is a WKWebView shell. JavaScript runs only as the hosted website.
+- App Transport Security allows HTTPS only. NSAllowsArbitraryLoads is false.
+- Privacy is the node's /privacy page. Tap Privacy in the app after the node address is set.
+- Set ZendoNodeURL in ios/Zendo/Info.plist to https://YOUR_DOMAIN before you archive, or type that address on first launch.
+- There is no account inside the binary. Signup happens on the website.
+- Sign in with a demo account you create on that node and put the credentials in the review notes.
+
+Apple often rejects an app whose only function is a website in a web view. The public iOS path that does not depend on review is Safari and Add to Home Screen. Submit this wrapper only if you want a store binary and you accept that review can say no.
+
+Encryption: ITSAppUsesNonExemptEncryption is false. The app uses HTTPS provided by the system.

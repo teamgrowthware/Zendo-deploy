@@ -1,0 +1,23 @@
+{
+  "networkId": "zendo-1",
+  "chainName": "Zendo",
+  "consensus": "proof-of-stake",
+  "nativeAsset": "ZCOIN",
+  "nativeDecimals": 18,
+  "totalSupply": "1000000000",
+  "publicAllocation": "700000000",
+  "founderAllocation": "300000000",
+  "publicBuckets": {
+    "operator": "100000",
+    "studio": "20000",
+    "bots": "600000",
+    "treasury": "50000000",
+    "publicPool": "649280000"
+  },
+  "gas": {
+    "transfer": "0.001",
+    "createCoin": "0.2",
+    "trade": "0.0005"
+  },
+  "notes": "Fees on zendo-1 are paid in ZendoCoin. Polygon chain 137 is an optional external token bridge and is not the chain that settles launchpad trades."
+}

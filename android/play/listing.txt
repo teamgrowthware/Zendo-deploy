@@ -1,0 +1,39 @@
+Google Play listing placeholders. Replace every line before you submit. This file is not uploaded by itself.
+
+App name: Zendo
+Package name: app.zendo.phone
+Default language: en-US
+Short description: ZendoCoin, the zendo-1 chain, and a meme-coin launchpad.
+Full description:
+Zendo opens the zendo-1 node in a secure window. The wallet, launchpad, explorer, staking, governance, and bridge are the website on that node. The app does not contain a second ledger.
+
+Privacy policy URL: https://YOUR_DOMAIN/privacy
+Website: https://YOUR_DOMAIN
+Support email: zendo2026@proton.me
+Category: Finance
+Content rating: complete the Play questionnaire. This app has account signup and a financial-style ledger.
+Ads: No
+In-app purchases: No
+
+Data safety, as implemented by the website:
+- Email, display name, password hash, PIN hash, and phrase hash are stored on the operator's node.
+- The 12-word phrase is not stored after signup confirmation.
+- There is no third-party analytics SDK in the wrapper.
+- The wrapper does not add a JavaScript interface.
+
+Build the store bundle only with your own upload key. No key or password is stored in this repo:
+
+export ZENDO_NODE_URL=https://YOUR_DOMAIN
+export ZENDO_STORE_FILE=/absolute/path/upload.jks
+export ZENDO_STORE_PASSWORD=...
+export ZENDO_KEY_ALIAS=...
+export ZENDO_KEY_PASSWORD=...
+cd android && gradle :app:bundlePlay
+
+Target API is 35. If Play Console asks for a newer target, raise compileSdk and targetSdk together and install that platform.
+
+Build a demo/sideload APK with the debug keystore, which Android generates on the build machine:
+
+cd android && gradle :app:assembleDemo
+
+Cleartext HTTP is disabled in the manifest and network security config. Every build talks HTTPS only.

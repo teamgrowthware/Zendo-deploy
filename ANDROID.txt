@@ -1,0 +1,15 @@
+Zendo phone package
+
+This file is ZendoReady2026.zip. In Chrome on Android, tap the zip link. The address ends in .zip and the file type is a zip archive, so Chrome saves ZendoReady2026.zip into Downloads.
+
+Open the Files app, go to Downloads, and tap ZendoReady2026.zip. Choose Extract. If a tap only previews the archive, use the three-dot menu and choose Extract or Open with Files.
+
+At the top of the extracted folder:
+- Zendo.apk — tap to install. If Android asks, allow Chrome to install unknown apps, then open Zendo. Pinch the page to zoom. This is a sideload app, not a Play Store listing.
+- zendo-app-tour.mp4 — 3 minutes 42 seconds, 1920 by 1200. Open it and pinch to zoom while it plays.
+
+The rest of the archive is the source, the docs, the white papers, and bin/zendo-node, a Linux binary for the separate node. You do not need that binary on the phone.
+
+On a computer: npm install, then npm run dev, then open http://127.0.0.1:38471
+
+The website ledger data/state.json is created on first boot and is not in this archive.

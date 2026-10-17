@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Zendo guide 2026</title>
+  <style>
+    @page { size: A4; margin: 16mm 14mm 18mm; }
+    html { color: #141414; }
+    body { font-family: Georgia, "Times New Roman", serif; font-size: 11.5px; line-height: 1.45; margin: 0; }
+    h1 { font-family: Arial, Helvetica, sans-serif; font-size: 26px; line-height: 1.15; margin: 0 0 8px; }
+    h2 { font-family: Arial, Helvetica, sans-serif; font-size: 16px; margin: 22px 0 8px; page-break-after: avoid; }
+    h3 { font-family: Arial, Helvetica, sans-serif; font-size: 13px; margin: 14px 0 6px; page-break-after: avoid; }
+    p { margin: 0 0 8px; }
+    ul, ol { margin: 0 0 8px; padding-left: 18px; }
+    li { margin: 0 0 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; page-break-inside: avoid; font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; }
+    th, td { border: 1px solid #ccc; padding: 4px 6px; text-align: left; vertical-align: top; }
+    th { background: #f3f3f3; }
+    code { font-family: ui-monospace, monospace; font-size: 10.5px; }
+    .meta { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; color: #333; }
+    .note { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; background: #f7f7f4; border: 1px solid #ddd; padding: 8px 10px; margin: 10px 0 14px; }
+  </style>
+</head>
+<body>
+  <p class="meta">Zendo · chain id zendo-1 · version 0.9.0 · review copy</p>
+  <h1>Zendo guide: chain, ZendoCoin, and the meme-coin launchpad</h1>
+  <p class="meta">This file describes the software in the app. It is not a price, a forecast, or investment advice. Contact zendo2026@proton.me.</p>
+
+  <div class="note">
+    <p>Zendo does not include every pump.fun feature. ZendoCoin does not launch as a meme coin. It is the gas and quote asset, already written into the ledger at first boot. Going live stamps a vesting clock. It does not sell ZendoCoin, list it on an exchange, or hand it to new wallets.</p>
+  </div>
+
+  <h2>1. What matches a pump-style board</h2>
+  <p>A signed-in znd1 wallet can create a coin for 0.2 Z. The form takes a name, a ticker of 2 to 8 characters starting with a letter (ZCOIN and ZENDO are reserved), a description of 10 to 280 characters, one emoji from a fixed set of 20, and a color from 0 to 360. There is no image upload and no website or social-link field. The mint is znd1 plus a hash of coin:{ticker}:{creator}. The same ticker cannot be registered twice. The 0.2 Z moves from the creator to the protocol treasury, and that action produces a block.</p>
+  <table>
+    <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Decimals</td><td>6</td></tr>
+      <tr><td>Total supply</td><td>1,000,000,000 tokens, fixed</td></tr>
+      <tr><td>Offered on the curve</td><td>800,000,000</td></tr>
+      <tr><td>Virtual ZendoCoin</td><td>30 Z, not taken from any wallet</td></tr>
+      <tr><td>Virtual tokens</td><td>1,073,000,000</td></tr>
+      <tr><td>Curve</td><td>constant product, k = virtual Z times virtual tokens</td></tr>
+      <tr><td>Graduation</td><td>85 Z of real net deposits, or the 800,000,000 sale cap</td></tr>
+      <tr><td>Trade fee</td><td>1% of notional</td></tr>
+      <tr><td>Creator share</td><td>0.30%, paid to the creator’s znd1 wallet</td></tr>
+      <tr><td>Protocol share</td><td>0.70%, paid to the treasury</td></tr>
+      <tr><td>Trade gas</td><td>0.0005 Z on top of the 1%</td></tr>
+      <tr><td>Promote</td><td>50 Z for 24 hours of featured placement</td></tr>
+    </tbody>
+  </table>
+  <p>The opening price is 30 / 1,073,000,000 Z per token, about 0.00000002796 Z. Marked against the full supply, that is a market cap of about 27.96 Z before any real ZendoCoin has been deposited. A buy debits the buyer for the gross amount plus gas. Only the remaining 99% enters the curve. Tokens out are old virtual tokens minus (k / new virtual Z). If the buy would pass 800,000,000 sold, the engine shrinks the fill. A sell reverses it. The curve will not buy back more tokens than it has sold, and a sale that cannot cover gas is rejected.</p>
+  <p>Real reserves are current virtual Z minus 30. The progress bar is that amount divided by 85. At 85 Z of net deposits, virtual Z is 115 and about 793 million tokens have been sold. The 800 million cap would need about 87.9 Z, so the 85 Z line is what graduates a coin in ordinary trading. Graduation flips the coin from curve to an internal pool seeded with that real Z and with 1,000,000,000 minus tokens sold (about 207 million tokens at the 85 Z line). Later trades use the same formula on those pool reserves. The creator does not receive a pre-mine. Unsold tokens sit in the pool. There is no Raydium, PumpSwap, or other external market, and no LP token is issued.</p>
+  <p>The board sorts by trending, new, graduating, and 24-hour volume, and it searches name, ticker, and mint. Trending score is 24-hour Z volume times 8, plus vote score times 6, plus 800 if the coin is promoted, plus 40 if the coin is under 12 hours old, plus a referral boost of 15 when the creator already used a referral code. Promotion stacks another 24 hours if it is bought again before the current window ends. Only the creator or an admin can promote.</p>
+  <p>Each coin page has a sparkline of recent trade prices, a holder list of the top 8 balances, a thread (replies up to 280 characters, last 100 kept), an upvote, a report (Scam, Spam, Impersonation, Other), a share link, and creator-fee earnings. The engine can store a downvote. The screen only sends upvote or clear. Reports go to the operator desk, which can hide a coin. Hidden coins disappear from the board and cannot be traded.</p>
+  <p>A fresh ledger has no meme coins. A coin appears when an account pays the 0.2 Z creation fee. The launchpad studio starts with 20,000 Z for that fee and for promotions.</p>
+
+  <h2>2. What pump.fun has that this board does not</h2>
+  <p>There is no Solana token program, no migration to an outside AMM, no livestream, no king-of-the-hill race, no mayhem mode, and no cashback beyond the 0.30% creator fee. There is no image, banner, or social-link metadata, no follow graph, and no reply likes. There are no limit orders and no user-set slippage. The quote shows price impact, and the trade executes at the price computed when it is submitted. There is no Phantom-style wallet. Trading uses the in-app znd1 session. There is no fiat on-ramp and no card payout. The optional MEV switch, off by default, only adds 0.05% to the trade fee. It is not a priority-fee auction. The Android package is a sideload WebView, not a Play Store client.</p>
+
+  <h2>3. How this chain runs</h2>
+  <p>Chain id is zendo-1. The website ledger is one Next.js process. Balances live in data/state.json on that machine. A separate Rust program, zendo-node, keeps its own ledger and is not the wallet behind the site.</p>
+  <p>Signup returns a 12-word phrase once. The address is znd1 plus the first 38 hex characters of the hash of zendo-wallet:{phrase}. The server stores a hash of zendo-seed:{phrase}, a password hash, and a PIN hash. It does not store the words. The same 12 words recover the same address, balances, and stake. Sends, trades, stakes, votes, and coin creation are authorized by the logged-in session. The phone does not sign each transaction with the phrase.</p>
+  <p>Signup steps: display name (2 to 32 characters), email, password (8 to 72 characters with a letter and a number), accept the terms, write down the 12 words, confirm three of them, then set a 4-digit PIN. The pending signup lasts 30 minutes. Eight wrong quiz answers drop the pending session. A referral code in the address (?ref=CODE) is stored in the browser and attached at signup. Each account gets its own referral code.</p>
+  <p>Sign-in is password, then PIN. Five wrong PINs pause entry for five minutes. Forgot Password shows a reset link on screen because there is no mail server. The link lasts 30 minutes and changes the password only. Recover Account requires the email and the 12 words, then replaces the password and the PIN and keeps the same address. Session cookies last 7 days. The PIN gate lasts 10 minutes. Changing the password or recovering the account bumps the session so older cookies stop working.</p>
+  <p>A user action writes the transaction and produces a block before the response returns. If nothing is happening, a timer still seals a block about every 5 seconds. The proposer is the next active validator in a round robin: North Arch, Harbor Relay, Cedar Quorum, Lime Hollow, Glass Mesa, Redwood Seal, Kite Span, and Orchard Gate. Saltworks and Paper Lantern start pending until an operator approves them. Commissions on those validators run from 3% to 7% of staking rewards. A block hash covers height, parent, time, transaction hashes, and proposer. The state root is a hash of every account nonce and balance. A block is labeled finalized after 2 later blocks. Those validators are records inside this one process. They do not run as separate machines, and the peer rows on the consensus screen are generated labels. One writer owns the file. A second writer on the same ledger would corrupt it. The explorer keeps roughly the last 320 blocks. Each user action packs at most 40 transactions into the block it produces.</p>
+  <table>
+    <thead><tr><th>Action</th><th>Fee in ZendoCoin</th></tr></thead>
+    <tbody>
+      <tr><td>Transfer</td><td>0.001</td></tr>
+      <tr><td>Create coin</td><td>0.2</td></tr>
+      <tr><td>Trade</td><td>0.0005, plus the 1%</td></tr>
+      <tr><td>Vote</td><td>0.002</td></tr>
+      <tr><td>Proposal, grant application, or marketplace listing</td><td>1</td></tr>
+      <tr><td>Promote</td><td>50</td></tr>
+      <tr><td>Stake</td><td>0.001, plus the bonded amount</td></tr>
+    </tbody>
+  </table>
+  <p>Public JSON-RPC is POST /api/rpc: 60 calls a minute, or 600 after an operator marks the account premium. Methods include chain id, block number, balance, block by height, transaction by hash, gas schedule, and a curve quote. The Rust RPC stays on localhost. A status stream at /api/stream sends the chain snapshot about every 2 seconds. Search accepts a block height, a 0x transaction or block hash, a znd1 address, or a ticker.</p>
+
+  <h2>4. ZendoCoin at boot, and what “live” does</h2>
+  <p>ZendoCoin (ZCOIN) has 18 decimals and a base supply of 1,000,000,000. It is not created on the launchpad and it has no dollar price inside the app. It is the asset used for gas, staking, voting, grants, and for buying meme coins.</p>
+  <table>
+    <thead><tr><th>Bucket</th><th>Amount</th><th>State at boot</th></tr></thead>
+    <tbody>
+      <tr><td>Louis Conner, Co-founder and President</td><td>200,000,000</td><td>Vesting lock. Liquid wallet starts at 0</td></tr>
+      <tr><td>Prabhat Agrawal</td><td>50,000,000</td><td>Vesting lock</td></tr>
+      <tr><td>Pratyaksh Lutare</td><td>50,000,000</td><td>Vesting lock</td></tr>
+      <tr><td>Founder total</td><td>300,000,000</td><td>Locked until the public clock and the schedule say otherwise</td></tr>
+      <tr><td>Operator system wallet</td><td>100,000</td><td>Liquid. Labeled “System wallet · Zendo Operator”</td></tr>
+      <tr><td>Launchpad studio</td><td>20,000</td><td>Liquid. Used to seed the demo coins</td></tr>
+      <tr><td>Six curve bots</td><td>600,000</td><td>100,000 each, used for the seed trades</td></tr>
+      <tr><td>Protocol treasury</td><td>50,000,000</td><td>Liquid grant purse</td></tr>
+      <tr><td>Faucet</td><td>0</td><td>Closed</td></tr>
+      <tr><td>Public allocation account</td><td>649,280,000</td><td>One system account labeled “Public allocation”</td></tr>
+      <tr><td>Public total</td><td>700,000,000</td><td>Liquid in the sense that it is not founder-locked</td></tr>
+    </tbody>
+  </table>
+  <p>300,000,000 plus 700,000,000 equals 1,000,000,000. After genesis, the only new coins are staking rewards, minted when a delegator claims. Fees and slashes move existing coins into the treasury. They do not mint. A supply check adds every ZendoCoin balance, every self-stake, every delegation, and every unbonding row, and that sum must equal the base supply plus claimed staking rewards.</p>
+  <p>Public launch is a clock, not a sale. On localhost and in development the clock stays unset. The first time a production process serves the app over HTTPS on a public hostname, the app stamps publicLaunchAt with that moment and never overwrites it. An audit row named public.launch is written. The vesting releaser runs immediately and pays 0, because no time has passed.</p>
+  <p>From that stamp: for 120 days, including the cliff day, founder locks pay nothing. At 365 days, each founder receives 25% of their own allocation. Louis Conner, Co-founder and President, receives 50,000,000. Prabhat Agrawal receives 12,500,000. Pratyaksh Lutare receives 12,500,000. At year 2 the cumulative unlock is 50%. At year 3 it is 75%. At year 4 it is 100%. The block timer moves newly unlocked coins from that founder’s vesting address to that founder’s wallet. Nobody has to press a claim. The operator wallet does not receive those coins. The 700,000,000 public allocation is already liquid before that stamp. Going live does not send it to users.</p>
+  <p>A new signup gets a znd1 wallet with 0 Z. There is no public sale of ZendoCoin and no automatic claim on the 649,280,000 public-allocation account. A person gets ZendoCoin only if an existing holder sends it, a treasury grant pays them, or they already hold some and earn staking rewards.</p>
+
+  <h2>5. Grants, staking, and governance</h2>
+  <p>A grant is 1 to 5,000 Z from the 50,000,000 treasury. Applying costs 1 Z and requires 100 Z of voting power. Voting power is liquid Z plus delegated stake. The grant stays locked for 60 seconds, then it pays only after yes beats no and at least 1,000 Z has been cast, and only when someone calls payout. So the chain is not community-funded as a crowdsale. The treasury can fund small grants by vote. The large public-allocation balance sits in one account and is not distributed by launch.</p>
+  <p>ZendoCoin supply grows only when stake rewards are claimed. The rate is 8% a year on the bonded amount, before commission. The formula is amount times 800 times elapsed milliseconds, divided by 10,000 times one year. The validator takes 3% to 7% of that reward. The rest is minted to the delegator. Jailed validators stop rewards. A jail slashes 10% of self-stake and 10% of each delegation into the treasury, once. A second jail does not slash again. Minimum stake is 1 Z plus 0.001 Z. Unbonding returns the coins after 2 blocks, about 10 seconds. Genesis validators start with 0 self-stake. Unknown validator ids return “Validator not found.”</p>
+  <p>A proposal names one allowed parameter, costs 1 Z, needs 100 Z of voting power, and runs for 5 days. It passes when yes beats no and at least 1,000 Z is cast as yes plus no. Abstain is recorded and does not count toward that quorum. A second active proposal with the same parameter or the same title is rejected before the fee is charged. A passing vote writes the new value into later blocks. Allowed parameters are block time (1,000 to 30,000 ms), finality depth (1 to 32), trade fee (0 to 1,000 bps, not below the creator share), creator share (0 to the trade fee), staking APR (0 to 3,000 bps), graduation reserves, minimum stake, unbonding blocks (1 to 500), MEV skim on or off, and the gas amounts for transfer, trade, vote, stake, proposal, coin creation, and promotion. Supply, decimals, and founder vesting cannot be changed by a vote.</p>
+  <p>The wallet screen shows spendable ZendoCoin, pending stake rewards, Send, Receive (address plus QR), Stake, Claim Rewards, and Governance. Token balances link back to the coin page. Activity links to the explorer. Notifications are in-app. Settings can change the password and the PIN, copy an invite link, and sign out. The phone bar shows Home, Launch, Send, Stake, and Govern.</p>
+
+  <h2>6. Marketplace, explorer, and the operator desk</h2>
+  <p>The marketplace lists a note of kind contract, sdk, or app. Publishing costs 1 Z. The name is 3 to 40 characters and the summary is 20 to 280. Each address leaves one rating from 1 to 5. Rank is rating times 10, plus the number of ratings, plus how many accounts used the author’s referral code. Applying a referral code can be done once. It does not move coins. A coin created afterward gets the trending boost of 15. The leaderboard shows the top 8 referrers.</p>
+  <p>Explorer tabs are Blocks, Transactions, Addresses, Contracts, Validators, Staking, and Stats. Pages show 24 rows. A consensus page exists and is not in that tab row. Contracts lists one vesting row per founder plus the launchpad factory. Stats shows supply, rewards issued, treasury, and the public allocation.</p>
+  <p>The operator desk is admin-only. It shows height, finalized height, mempool, and user count. It can switch the 0.05% MEV skim, run a fork-choice drill on header lists, approve or jail a validator, hide a reported coin, grant or remove premium RPC by email, and read the reset-link outbox, the contact inbox, and the audit log. Contact topics are General, Validators, Premium RPC, Press, and Security. The seeded operator login is published in the repository so the desk can be opened locally. Change that password before any public host.</p>
+  <p>Other pages: About, FAQ, white paper in English, Spanish, Chinese, Hindi, and Arabic, Learn (including a live quote of 1 Z that does not send a trade), Onboarding, Developers (HTTP routes, CLI, Kotlin and Swift clients), Privacy, and Terms. The home page shows chain height, three trending coins, and the fee table.</p>
+
+  <h2>7. Revenue, in the units the app actually collects</h2>
+  <p>Every fee is denominated in ZendoCoin. The app has no dollar balance, no card processor, and no exchange price. “Billions of dollars” is not a number this ledger can produce or report.</p>
+  <p>The protocol’s take on a meme-coin trade is 0.70% of notional Z. The other 0.30% goes to the coin creator. On top of that, the treasury also receives 0.2 Z per coin created, 0.0005 Z per trade, 0.001 Z per transfer, 0.002 Z per vote, 1 Z per proposal, grant application, or marketplace listing, and 50 Z per 24-hour promotion. Staking rewards are inflation paid to delegators, not revenue to the treasury.</p>
+  <p>If the protocol fee were 0.70% and if ZendoCoin had a stable outside dollar price, one billion dollars of protocol fees would require on the order of 140 billion dollars of trade notional in a year, before creator share. The app does not have that price, that order book, or that flow of outside buyers. New wallets start at zero, so they cannot trade until someone sends them Z. The 649,280,000 public coins are not distributed. There is no listing on an exchange that would bring outside bids.</p>
+  <p>A realistic reading of the current fee design is a self-hosted board whose treasury grows only when people who already hold Z trade, create, and promote. That can be a working product for a small community. It is not, by itself, a plan that compounds into billions of dollars.</p>
+
+  <h2>8. How this differs from pump.fun, Solana, and Ethereum</h2>
+  <p>Pump.fun launches tokens on Solana and, after the curve, those tokens can trade where SOL already has buyers. Zendo launches tokens only against ZendoCoin, inside this app, and graduates them into a pool that also lives only in this file. A coin here cannot be withdrawn to Phantom, MetaMask, or an exchange.</p>
+  <p>Solana is a network of independent validators with a real fee market and SPL tokens that move between wallets the user controls with a key. Zendo’s proof-of-history slot is the block height. Its validators are rows in the same process that stores the balances. A Zendo transaction is accepted because the browser session is logged in.</p>
+  <p>Ethereum is a global settlement network. ERC-20 tokens and Uniswap pools are enforceable by many nodes, and gas is a market. Zendo gas is a fixed Z amount from a config file. Users cannot deploy their own contracts. A marketplace “contract” listing is a catalog entry that costs 1 Z. It is not executable code.</p>
+  <p>Zendo is cheaper and simpler to run because it does not operate a validator set, a fee market, outside liquidity, or a user-held signing key on every transfer. Coins that trade on exchanges have continuous outside bids. ZendoCoin has no dollar market in this app, so there is no place here where it can outperform ETH, SOL, or any listed coin. Being absent from exchanges does not create that outperformance.</p>
+
+  <h2>9. Why hosting is cheap</h2>
+  <p>One operator runs one process and one disk file. A small virtual machine is enough: a Hetzner CX22 is about €4 to €6 a month, a 1 GB DigitalOcean or Linode droplet is about $6, and a small Fly.io machine with a volume is about $5 to $8. A domain is about $10 to $15 a year. The chain does not pay Ethereum or Solana for gas, and it does not need a rack of validators. Docker and Kubernetes are set to a single replica, with about 20 seconds to flush the ledger on shutdown. A host that wipes the disk forgets every wallet, so the cheap machine still needs a disk that survives restarts. Serverless hosting that drops the disk is the wrong place for this ledger. Before a public host, change the seeded operator password and serve the site over HTTPS. Health checks on localhost stay open. A public request that is not HTTPS is refused in production.</p>
+
+  <h2>10. What the locks are for</h2>
+  <p>The three founder allocations are a lock, not a public investment product. There is no screen where an outside investor buys ZendoCoin and receives a vesting schedule. The lock exists so 300,000,000 Z cannot move on the day the app is opened. For 120 days after the public stamp, nothing from those locks moves. After that, each founder’s own coins unlock at 25% a year for four years, into that founder’s wallet, automatically. That keeps the published supply story checkable: founder coins and the 700,000,000 public allocation are different balances, and staking is the only inflation.</p>
+  <p>That is a reason for the founders’ coins to stay locked. It is not a reason for someone else to send money in. Nothing in the app offers a return, a buyback, or an exchange listing.</p>
+
+  <h2>11. The problem this app fits</h2>
+  <p>The problem this app is built for is narrow and concrete. A small group wants one place to host a gas coin, a meme-coin board, wallets, an explorer, votes, and grants, without calling another chain and without the server storing raw recovery phrases. Founder coins stay in public locks. Fees are written down. A new coin costs 0.2 Z and trades on a curve whose reserves you can read.</p>
+  <p>It does not solve price discovery, fiat access, or how a stranger on the internet obtains the quote asset. Until the 649,280,000 public allocation is actually distributed by a rule the chain enforces, or until an outside market exists, a new user can look at the launchpad and still be unable to buy. That distribution gap is the limit on growth. The curve, the fees, and the vesting clock do not remove it.</p>
+
+  <h2>12. Where to tap things in the app</h2>
+  <ul>
+    <li>Home, launchpad, create coin, coin page: / , /launchpad , /launchpad/create , /launchpad/{mint}</li>
+    <li>ZendoCoin schedule: /zcoin</li>
+    <li>Wallet, send, stake, settings, operator: /app , /app/send , /app/stake , /app/settings , /app/admin</li>
+    <li>Governance and grants: /governance , /grants</li>
+    <li>Explorer: /explorer/blocks , /txs , /addresses , /contracts , /validators , /staking , /stats</li>
+    <li>Marketplace, learn, onboarding, developers, white paper, contact: /market , /learn , /onboarding , /developers , /whitepaper , /contact</li>
+    <li>Phone files: /Zendo.apk , /zendo-app-tour.mp4 , /ZendoReady2026.zip , /ZendoGuide2026.pdf</li>
+  </ul>
+  <p class="meta">End of review copy. Numbers come from zendo-blockchain.toml, lib/zendo-founders.ts, lib/zendo-supply.ts, lib/curve.ts, and lib/engine.ts.</p>
+</body>
+</html>

@@ -1,0 +1,7 @@
+[
+  { "code": "en", "label": "English", "source": "docs/whitepaper-body.html", "slug": "whitepaper", "htmlLang": "en", "dir": "ltr" },
+  { "code": "es", "label": "Español", "source": "docs/whitepaper-es.html", "slug": "whitepaper-es", "htmlLang": "es", "dir": "ltr" },
+  { "code": "zh", "label": "中文", "source": "docs/whitepaper-zh.html", "slug": "whitepaper-zh", "htmlLang": "zh-Hans", "dir": "ltr" },
+  { "code": "hi", "label": "हिन्दी", "source": "docs/whitepaper-hi.html", "slug": "whitepaper-hi", "htmlLang": "hi", "dir": "ltr" },
+  { "code": "ar", "label": "العربية", "source": "docs/whitepaper-ar.html", "slug": "whitepaper-ar", "htmlLang": "ar", "dir": "rtl" }
+]

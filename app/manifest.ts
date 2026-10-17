@@ -1,0 +1,16 @@
+import type { MetadataRoute } from "next";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "Zendo",
+    short_name: "Zendo",
+    description: "Zendo chain zendo-1: ZendoCoin, proof of stake, and a bonding-curve launchpad.",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#0A0A0A",
+    theme_color: "#0A0A0A",
+    icons: [
+      { src: "/logo.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+    ],
+  };
+}

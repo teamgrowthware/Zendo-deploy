@@ -1,0 +1,72 @@
+# kubectl create secret generic zendo-shard --from-literal=secret='replace-this'
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zendo-shard
+  labels:
+    app: zendo-shard
+spec:
+  serviceName: zendo-shard
+  replicas: 2
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app: zendo-shard
+  template:
+    metadata:
+      labels:
+        app: zendo-shard
+    spec:
+      terminationGracePeriodSeconds: 20
+      containers:
+        - name: zendo
+          image: zendo:local
+          ports:
+            - containerPort: 38471
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: ZENDO_SECURE_COOKIES
+              value: "1"
+            - name: ZENDO_SHARD_COUNT
+              value: "2"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ZENDO_SHARD_URLS
+              value: http://zendo-shard-0.zendo-shard:38471,http://zendo-shard-1.zendo-shard:38471
+            - name: ZENDO_SHARD_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: zendo-shard
+                  key: secret
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 38471
+            initialDelaySeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zendo-shard
+spec:
+  clusterIP: None
+  selector:
+    app: zendo-shard
+  ports:
+    - port: 38471
+      targetPort: 38471

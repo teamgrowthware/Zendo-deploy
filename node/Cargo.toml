@@ -1,0 +1,21 @@
+[package]
+name = "zendo-node"
+version = "0.1.0"
+edition = "2021"
+description = "Zendo chain node: blocks, transfers, gossip, and JSON-RPC"
+license = "MIT"
+
+[[bin]]
+name = "zendo-node"
+path = "src/main.rs"
+
+[dependencies]
+base64ct = "=1.6.0"
+ed25519-dalek = { version = "=2.1.1", features = ["rand_core"] }
+hex = "=0.4.3"
+libc = "=0.2.189"
+rand = "=0.8.5"
+serde = { version = "=1.0.210", features = ["derive"] }
+serde_json = "=1.0.128"
+sha2 = "=0.10.8"
+zeroize = "=1.8.1"

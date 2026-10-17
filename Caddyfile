@@ -1,0 +1,6 @@
+# Put this in front of `docker compose up -d`. Set ZENDO_SECURE_COOKIES=1 on the app.
+# One process owns data/state.json. Point the proxy at that process only.
+# ZENDO_DOMAIN=zendo.example.com caddy run --config Caddyfile
+{$ZENDO_DOMAIN:localhost} {
+	reverse_proxy 127.0.0.1:38471
+}

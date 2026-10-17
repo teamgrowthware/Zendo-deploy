@@ -1,0 +1,10 @@
+{
+  "launch": "200000000000000000",
+  "tradeBps": 100,
+  "boost": "50000000000000000000",
+  "graduation": "0",
+  "listing": "1000000000000000000",
+  "govern": "1000000000000000000",
+  "stakeBps": 0,
+  "note": "Fees credit the protocol treasury on the Zendo ledger. They do not move funds on an external chain."
+}

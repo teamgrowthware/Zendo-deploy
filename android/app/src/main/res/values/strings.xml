@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Zendo</string>
+    <string name="url_hint">https://your.domain.example</string>
+    <string name="open">Open</string>
+    <string name="privacy">Privacy</string>
+    <string name="saving">Saving %1$s</string>
+    <string name="open_failed">Could not open that address.</string>
+    <string name="https_required">Enter the https address of your Zendo node.</string>
+</resources>

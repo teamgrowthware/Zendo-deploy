@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zendo
+  labels:
+    app: zendo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zendo
+  template:
+    metadata:
+      labels:
+        app: zendo
+    spec:
+      terminationGracePeriodSeconds: 20
+      containers:
+        - name: zendo
+          image: zendo:local
+          ports:
+            - containerPort: 38471
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: ZENDO_SECURE_COOKIES
+              value: "1"
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 38471
+            initialDelaySeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 38471
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: zendo-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zendo-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zendo
+spec:
+  selector:
+    app: zendo
+  ports:
+    - port: 80
+      targetPort: 38471

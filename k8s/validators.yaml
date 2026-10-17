@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zendo-validator
+  labels:
+    app: zendo-validator
+spec:
+  serviceName: zendo-validator
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zendo-validator
+  template:
+    metadata:
+      labels:
+        app: zendo-validator
+    spec:
+      containers:
+        - name: zendo-node
+          image: zendo-node:local
+          args:
+            - run
+            - --data
+            - /var/lib/zendo
+            - --listen
+            - 0.0.0.0:47110
+            - --rpc
+            - 0.0.0.0:47111
+          ports:
+            - name: p2p
+              containerPort: 47110
+            - name: rpc
+              containerPort: 47111
+          readinessProbe:
+            tcpSocket:
+              port: 47111
+            initialDelaySeconds: 5
+          volumeMounts:
+            - name: chain
+              mountPath: /var/lib/zendo
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: chain
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 100Gi

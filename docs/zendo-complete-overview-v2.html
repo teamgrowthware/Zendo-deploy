@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Zendo complete platform overview</title>
+  <style>
+    @page { size: A4; margin: 16mm 14mm 18mm; }
+    body { font-family: Georgia, "Times New Roman", serif; color: #161616; font-size: 11.4px; line-height: 1.45; margin: 0; }
+    h1 { font-family: Arial, Helvetica, sans-serif; font-size: 24px; line-height: 1.15; margin: 0 0 8px; }
+    h2 { font-family: Arial, Helvetica, sans-serif; font-size: 16px; margin: 22px 0 8px; page-break-after: avoid; }
+    h3 { font-family: Arial, Helvetica, sans-serif; font-size: 13px; margin: 14px 0 6px; page-break-after: avoid; }
+    p { margin: 0 0 8px; }
+    ul, ol { margin: 0 0 8px; padding-left: 18px; }
+    li { margin: 0 0 3px; }
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-family: Arial, Helvetica, sans-serif; font-size: 10px; page-break-inside: avoid; }
+    th, td { border: 1px solid #ccc; padding: 4px 6px; text-align: left; vertical-align: top; }
+    th { background: #f4f4f4; }
+    pre { font-family: ui-monospace, monospace; font-size: 9.5px; line-height: 1.35; background: #f7f7f4; border: 1px solid #ddd; padding: 8px; white-space: pre-wrap; page-break-inside: avoid; }
+    code { font-family: ui-monospace, monospace; font-size: 10.5px; }
+    .meta { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; color: #333; }
+    .note { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; background: #f7f7f4; border: 1px solid #ddd; padding: 8px 10px; margin: 8px 0 12px; }
+  </style>
+</head>
+<body>
+  <p class="meta">Zendo · chain id zendo-1 · software version 0.9.0 · Zendo_Complete_Platform_Overview_v2.pdf</p>
+  <h1>Zendo complete platform overview</h1>
+  <p class="meta">This document describes the software in the repository. It is not a price, a forecast, a security certificate, or a legal opinion. Contact zendo2026@proton.me.</p>
+  <div class="note">
+    <p>Zendo is one web application that runs a ledger, a wallet, a meme-coin launchpad, staking, governance, an explorer, and a lock-and-release bridge to Polygon. Publishing the website does not list ZendoCoin on an exchange, does not airdrop the public allocation, and does not deploy the Polygon contracts by itself. A withdrawal locks coins on zendo-1 and signs a voucher. The Polygon contract pays ERC-20 ZCOIN it already holds. It does not mint a second billion.</p>
+  </div>
+
+  <h2>1. Introduction — what Zendo is</h2>
+  <p>Zendo is a unified application for one operator-run chain. Inside that application a person can create a wallet, hold ZendoCoin, create and trade meme coins, stake, vote, and read the block log. Those pieces share one process and one state file. They are not five separate products that call Ethereum or Solana for balances.</p>
+  <p>The pieces are:</p>
+  <ul>
+    <li>The Zendo ledger, chain id <code>zendo-1</code>, stored in <code>data/state.json</code> on the machine that runs the app.</li>
+    <li>ZendoCoin (<code>ZCOIN</code>), 18 decimals, base supply 1,000,000,000. It pays gas, staking bonds, votes, and the 0.2 Z fee to create a meme coin.</li>
+    <li>A meme-coin launchpad. Each new coin has its own 6-decimal supply and trades against ZendoCoin on a constant-product curve, then in an in-app pool after graduation.</li>
+    <li>Wallets whose addresses start with <code>znd1</code>. Signup shows a 12-word phrase once. The server stores a hash of that phrase, not the words.</li>
+    <li>Governance proposals and treasury grants, both weighted by liquid ZendoCoin plus delegated stake.</li>
+    <li>Staking to named validators, with an 8% annual reward before commission, paid only when a delegator claims.</li>
+    <li>Portfolio rows in the wallet: spendable ZendoCoin, meme-coin balances valued at the curve or pool spot price in Z, and pending stake rewards.</li>
+    <li>Live screens that refresh coin lists, quotes, and chain status while the process is running.</li>
+  </ul>
+  <p>A separate Rust program, <code>zendo-node</code>, can run beside the website. It keeps its own ledger. The website wallet does not send transfers through it.</p>
+  <h3>The fragmentation problem, and the limit of this answer</h3>
+  <p>Using cryptocurrency today often means a wallet extension, a different site for launching a token, another site for a chart, and another chain’s gas token. Zendo puts the wallet, the launch board, the explorer, staking, and votes in one interface, and it prices meme coins in its own coin so the app does not depend on another chain’s RPC for those balances.</p>
+  <p>That unification is real inside this process. It does not remove the need for a person to obtain ZendoCoin before they can trade. A new signup starts at 0 Z. The faucet pays nothing. The 649,280,000 Z labeled “Public allocation” sits in one system account and is not sent to new users when the site opens.</p>
+  <h3>Custody, fiat, and licenses</h3>
+  <p>The design intent is that Zendo does not run a fiat till. There is no card charge, no bank payout, and no dollar balance in the ledger. The 12-word phrase is shown once and is not written to the database or to logs. Recovery with the same words restores the same <code>znd1</code> address, the same balances, and the same stake and vote weight.</p>
+  <p>The balances themselves live in the chain file on the operator’s disk. A logged-in session can send, trade, and stake. That is an account on this chain, not a second custodial wallet sitting beside the chain. Polygon tokens, after a real deployment, move only when the holder signs an Ethereum transaction in their own wallet. This document does not conclude that an operator needs no money-transmitter or similar license. That question depends on what the operator does with the treasury and the public-allocation account, and on the law of the place they operate. Nothing here is legal, financial, or investment advice.</p>
+
+  <h2>2. The Zendo app — features, workflows, interface, and stack</h2>
+  <h3>Wallet creation</h3>
+  <p>Signup collects a display name (2 to 32 characters), an email, and a password of 8 to 72 characters that contains a letter and a number. The person must accept the terms. The server draws 12 words from the BIP39 English list, returns them once in the signup response, and stores only <code>sha256("zendo-seed:" + phrase)</code>. Three quiz words are checked against hashes of the form <code>sha256("zendo-quiz:" + phraseHash + ":" + index + ":" + word)</code>. After a correct quiz those quiz hashes are cleared. The person then sets a 4-digit PIN. The pending signup expires in 30 minutes. Eight wrong quiz answers discard it.</p>
+  <p>The address is <code>znd1</code> plus the first 38 hex characters of <code>sha256("zendo-wallet:" + phrase)</code>. The same phrase always produces the same address. The new account’s ZendoCoin balance is 0.</p>
+  <h3>Sign-in, reset, and recovery</h3>
+  <p>Sign-in is the password, then the PIN. Five wrong PINs pause entry for five minutes. The session cookie lasts 7 days. The PIN gate lasts 10 minutes. Forgot Password does not send email. If the account exists, the reset link is shown on screen and stored for the operator outbox. It lasts 30 minutes and changes the password only. Recover Account asks for the email and the 12 words, replaces the password and the PIN, and keeps the address, balances, and stake. Changing the password or recovering bumps the session so older cookies stop working.</p>
+  <h3>What a signed-in person can do</h3>
+  <ol>
+    <li>Open the wallet and read spendable ZendoCoin, meme-coin balances valued in Z, pending rewards, the receive address, and a QR code.</li>
+    <li>Send ZendoCoin or a meme coin to any <code>znd1</code> address. An unknown address is recorded on inclusion. The fee is 0.001 Z.</li>
+    <li>Stake at least 1 Z plus 0.001 Z to an active validator, or start unbonding. Unbonding returns the coins after 2 blocks, about 10 seconds at the 5-second block time.</li>
+    <li>Claim staking rewards. The claim is the moment new ZendoCoin is minted.</li>
+    <li>File a governance proposal (1 Z, at least 100 Z of voting power) or vote yes, no, or abstain (0.002 Z).</li>
+    <li>Create a meme coin for 0.2 Z, then buy and sell it.</li>
+    <li>Reply on a coin thread, upvote, report, or, if they created the coin, promote it for 50 Z for 24 hours.</li>
+    <li>Apply for a treasury grant of 1 to 5,000 Z, or publish a marketplace note for 1 Z.</li>
+    <li>Open Bridge. Withdraw locks ZendoCoin and returns a signed Polygon voucher. Deposit submits a Polygon transaction hash. The node reads the lock log and credits this znd1 address from the vault.</li>
+  </ol>
+  <h3>Screens and navigation</h3>
+  <p>The public header links Launchpad, Explorer, ZCoin, and Bridge, plus Company and Legal menus. Search accepts a block height, a transaction or block hash, a <code>znd1</code> address, or a ticker. On a phone, the signed-in bar is Home, Launch, Send, Bridge, and Stake. Desktop adds Govern, Explorer, and Settings. An admin also sees Operator.</p>
+  <p>The field is dark ink with lime and gold type. Coin pages show a sparkline of recent trade prices, a graduation bar, a quote, and one-tap Buy or Sell after the amount is entered. Quotes refresh from the same pricing function the trade will use. Charts are the recent trade prints, not a candle engine and not a dollar chart.</p>
+  <p>Notifications are in-app. Examples include wallet ready, transfer included, a coin going live on the curve, a grant payout, and a referral join. There is no push service and no mail server.</p>
+  <h3>Security model, as implemented</h3>
+  <ul>
+    <li>The raw 12-word phrase is not stored and is not written by the logger. The long-term secret on disk is the phrase hash, plus bcrypt hashes of the password and PIN.</li>
+    <li>Identifiers and transaction hashes use the operating system’s cryptographic random bytes, not a weak userspace generator.</li>
+    <li>Mutating actions require the session. They are not individually signed by the phrase on the phone. Someone who steals the session cookie can act as that account until the session ends or the password is reset.</li>
+    <li>Production refuses a public request that is not HTTPS. Localhost health checks stay open. Cookies are marked secure in production or when <code>ZENDO_SECURE_COOKIES=1</code>.</li>
+    <li>Public JSON-RPC is 60 calls a minute, or 600 after an operator marks the account premium.</li>
+    <li>One process owns the ledger file. A second writer on the same file can corrupt it. Containers and the Kubernetes manifest are set to one replica.</li>
+  </ul>
+  <h3>Technology that actually ships</h3>
+  <table>
+    <thead><tr><th>Layer</th><th>What runs</th></tr></thead>
+    <tbody>
+      <tr><td>Interface</td><td>Next.js App Router, React, TypeScript, Tailwind. Responsive web, plus a sideload Android WebView package. Not a React Native or Expo codebase.</td></tr>
+      <tr><td>Server</td><td>The same Next.js process. Route handlers read and write the ledger. There is no separate PostgreSQL database and no Redis.</td></tr>
+      <tr><td>Ledger</td><td>One JSON file, <code>data/state.json</code>, written by a temp file, fsync, and rename. Chain module is TypeScript in <code>lib/engine.ts</code>.</td></tr>
+      <tr><td>Meme coins</td><td>Records in that ledger, not Solidity contracts. Polygon ZCOIN is an ERC-20. The bridge moves value by locking on one side and releasing coins the other side already holds.</td></tr>
+      <tr><td>Optional node</td><td>Rust binary <code>zendo-node</code>, separate ledger, not the website wallet.</td></tr>
+      <tr><td>Hosting</td><td>Dockerfile, a Caddy example, and a Kubernetes manifest with one replica. A disk that survives restarts is required.</td></tr>
+    </tbody>
+  </table>
+  <pre>Phone or browser
+    |
+    v
+Next.js pages and /api routes
+    |
+    v
+lib/engine.ts  (one writer, one lock)
+    |
+    v
+data/state.json
+    |
+    +-- accounts, ZCOIN balances, stakes, votes
+    +-- meme coins, curves, pools, threads
+    +-- blocks and transactions
+
+polygon/contracts/ZendoCoin.sol  +  ZendoBridge.sol
+    |
+    v
+only after a founder broadcasts both deploys and funds the bridge
+    |
+    v
+Polygon (chain id 137), holder’s own wallet
+    |
+    v
+lock() or release()  &lt;-&gt;  signed voucher / receipt on zendo-1
+</pre>
+
+  <h2>3. ZendoCoin — supply, use, price, and Polygon</h2>
+  <h3>Role on zendo-1</h3>
+  <p>ZendoCoin is the native coin of the in-app ledger. It is not created on the launchpad. Ticker <code>ZCOIN</code> is reserved so a meme coin cannot take that symbol. Decimals are 18. The base supply is 1,000,000,000. After genesis, the only new coins are staking rewards minted at claim time. Fees move existing coins into the treasury. They do not mint.</p>
+  <p>Uses: gas on transfer, trade, vote, proposal, stake, and coin creation; the bond when delegating; voting power (liquid balance plus delegated stake); the 0.2 Z creation fee; the 1% meme-coin trade, which is paid in ZendoCoin.</p>
+  <h3>Allocations from founders.json</h3>
+  <p><code>founders.json</code> is the shared table. The running chain imports it through <code>lib/zendo-founders.ts</code>. The Polygon dry-run reads the same file.</p>
+  <table>
+    <thead><tr><th>Bucket</th><th>Whole Z</th><th>Where it sits at boot</th></tr></thead>
+    <tbody>
+      <tr><td>Louis Conner, Co-founder and President</td><td>200,000,000</td><td>Vesting lock. Spendable wallet starts at 0</td></tr>
+      <tr><td>Prabhat Agrawal</td><td>50,000,000</td><td>Vesting lock</td></tr>
+      <tr><td>Pratyaksh Lutare</td><td>50,000,000</td><td>Vesting lock</td></tr>
+      <tr><td>Founder total</td><td>300,000,000</td><td>Locked until the public clock and the schedule allow a release</td></tr>
+      <tr><td>Operator system wallet</td><td>100,000</td><td>Liquid, inside the public 700,000,000. Label: System wallet · Zendo Operator</td></tr>
+      <tr><td>Launchpad studio</td><td>20,000</td><td>Liquid. Seeds the demo coins</td></tr>
+      <tr><td>Six curve bots</td><td>600,000</td><td>100,000 each. Used for seed trades</td></tr>
+      <tr><td>Protocol treasury</td><td>50,000,000</td><td>Liquid grant purse</td></tr>
+      <tr><td>Faucet</td><td>0</td><td>Closed</td></tr>
+      <tr><td>Public allocation account</td><td>649,280,000</td><td>One system account labeled Public allocation</td></tr>
+      <tr><td>Public total</td><td>700,000,000</td><td>Not founder-locked. Not automatically paid to signups</td></tr>
+    </tbody>
+  </table>
+  <p>300,000,000 + 700,000,000 = 1,000,000,000. A supply check adds every account balance, every validator self-stake, every delegation, and every unbonding row. That sum must equal the base supply plus claimed staking rewards.</p>
+  <h3>How a balance becomes visible</h3>
+  <p>The wallet shows spendable ZendoCoin with 4 decimal places on the main figure, pending stake rewards, and each meme coin as a token amount plus a Z value. That Z value is the spot price times the holding. Spot price is virtual or pool Z per token. There is no dollar column unless an operator sets an environment reference, and this build does not invent an exchange price. Portfolio value in the app is denominated in ZendoCoin.</p>
+  <h3>How ZendoCoin’s quantity changes, and how meme-coin prices move</h3>
+  <p>ZendoCoin’s coin count grows only when someone claims stake rewards. The gross reward is the bonded amount times 800 basis points times elapsed time, divided by 10,000 times one year. The validator commission, 3% to 7% of that reward depending on the validator, is minted to the validator. The rest is minted to the delegator. Jailed validators stop rewards. This inflation can increase the number of coins. It is not, by itself, a higher price.</p>
+  <p>The app does not quote ZendoCoin in dollars, euros, or against ETH or SOL. There is no order book for ZendoCoin itself. A rise or fall that a person can watch on a coin page is the meme coin’s price in ZendoCoin. Buys move that price up along the curve. Sells move it down. That quoted price can change on every trade, including seconds after a coin is created.</p>
+  <p>“Grows in value” is therefore not a promise about ZendoCoin’s dollar price. Demand for a meme coin can raise that meme coin’s Z price. Demand for ZendoCoin as gas and as the quote asset is real only among people who already hold it or who receive it by transfer or grant. Without an outside market, there is no continuous public bid.</p>
+  <h3>What “live” does to ZendoCoin</h3>
+  <p>On localhost and in development, the founder clock stays unset and founder coins stay locked. The first time a production process serves the site over HTTPS on a public hostname, the app writes <code>publicLaunchAt</code> once. The releaser runs immediately and pays 0, because no time has passed. From that stamp: nothing unlocks for 120 days, including the cliff day; at 365 days each founder receives 25% of their own allocation (Louis Conner, Co-founder and President, 50,000,000; Prabhat Agrawal 12,500,000; Pratyaksh Lutare 12,500,000); year 2 is 50% cumulative; year 3 is 75%; year 4 is 100%. The block timer moves unlocked coins from that founder’s vesting address to that founder’s wallet. Nobody presses a claim. The operator wallet does not receive those coins.</p>
+  <p>The 700,000,000 public allocation is already liquid before that stamp. Going live does not distribute it. A member of the public gets ZendoCoin only if a holder sends it, a passed grant pays 1 to 5,000 Z from the treasury, or they already have at least 1 Z and later claim staking rewards.</p>
+  <h3>Polygon mainnet, as a separate token</h3>
+  <p>Polygon chain id is 137. <code>ZendoCoinLaunch</code> deploys <code>ZendoCoin</code> and <code>ZendoCoinVesting</code> in one transaction and reverts on every other chain. Name is ZendoCoin, ticker is <code>$ZCoin</code>, decimals are 18, supply is 1,000,000,000. There is no mint after construction and no admin key. Transfers do not call the recipient. Louis Conner, Co-founder and President, has 200,000,000 locked for <code>0x18a0730008034177b40F1172aA5953a37dAE7102</code>. Prabhat Agrawal has 50,000,000 locked for <code>0xD319679625599303393084671a3AdaB52ea999B3</code>. Pratyaksh Lutare has 50,000,000 locked for <code>0x3336a52Cd82F01956147aed641F35694a235fbc9</code>. The other 700,000,000 is liquid and is sent to the public allocation wallet.</p>
+  <p>Nothing is released during the 120-day cliff, including on the cliff day. Then 25% of each founder's own allocation unlocks at each 365-day anniversary for four years. The founder calls <code>release()</code> and receives only their own unlocked coins.</p>
+  <h3>How to deploy it</h3>
+  <ol>
+    <li>Open <code>polygon/README.md</code> or the phone archive <code>ZendoCoin-Polygon_Mainnet.zip</code>.</li>
+    <li>Run <code>node polygon/scripts/deploy.mjs</code>. It prints the plan and does not broadcast.</li>
+    <li>To broadcast, set an https <code>POLYGON_RPC_URL</code> that reports chain id 137 and <code>DEPLOYER_PRIVATE_KEY</code>, install <code>ethers</code>, and run <code>node polygon/scripts/deploy.mjs --broadcast</code>. Optional <code>POLYGON_ADDR_PUBLIC</code> receives the 700,000,000. If it is unset, the deployer wallet receives them. The script does not print the key. The deployer pays Polygon gas in POL.</li>
+    <li>After the token address exists, holders use their own Polygon wallet to transfer, approve, or burn. The website session does not sign those transfers.</li>
+  </ol>
+  <p>The in-app balance and the Polygon balance move together only through the bridge in section 11. A withdrawal does not mint on Polygon. A deposit does not mint on zendo-1. Each side pays from coins it already holds.</p>
+
+  <h2>4. The Zendo ledger — architecture and operation</h2>
+  <h3>What kind of chain this is</h3>
+  <p>It is a single-process ledger with an append-style block log. Chain id <code>zendo-1</code>. Block time target is 5,000 milliseconds. A block is labeled finalized after two later blocks. “Proof of history” on a block is the height when that flag is on. It is not a verifiable delay function and not a network of independent validators.</p>
+  <p>Eight validators start active and take turns: North Arch, Harbor Relay, Cedar Quorum, Lime Hollow, Glass Mesa, Redwood Seal, Kite Span, Orchard Gate. Saltworks and Paper Lantern start pending until an operator approves them. They are rows in the same state file. They do not run on separate machines. The peer table on the consensus screen is a set of generated labels.</p>
+  <pre>user action
+  -> authenticate session
+  -> debit / credit accounts inside the lock
+  -> push transaction
+  -> seal a block (up to 40 transactions)
+  -> fsync state.json
+
+idle timer, about every 5 seconds
+  -> heartbeat transaction from the next proposer
+  -> seal a block
+  -> release any founder coins the schedule has unlocked
+  -> release unbonding that has reached its height
+  -> close proposals whose clocks have ended
+</pre>
+  <h3>Addresses, wallets, and balances</h3>
+  <p>User addresses come from the phrase, as in section 2. System addresses come from labels: treasury, faucet, community (the public allocation), studio, the Polygon bridge vault, each founder vesting lock, each founder spendable wallet, each validator, and each meme-coin mint (<code>coin:{symbol}:{creator}</code>). All of them start with <code>znd1</code>.</p>
+  <p>A balance is a string of base units on an account. ZendoCoin uses 18 decimals. Meme coins use 6. Sending to an unseen <code>znd1</code> address creates an account labeled “External wallet” and credits it. That is still an account inside this file, not a payment on another chain.</p>
+  <h3>Transactions and blocks</h3>
+  <p>Transaction types include transfer, coin create, trade, stake, unbonding, reward, vote, proposal, parameter apply, grant, listing, referral, vesting, slash, promote, and heartbeat. A user action produces its block before the HTTP response returns. The block hash covers height, parent, time, transaction hashes, and proposer. The state root hashes every account nonce and balance. The explorer keeps roughly the last 320 blocks.</p>
+  <h3>Staking, jail, and governance state</h3>
+  <p>Delegation debits liquid ZendoCoin and records a stake row. Minimum is 1 Z plus 0.001 Z gas. Unbonding waits <code>unbonding_blocks</code>, which is 2. Rewards accrue in the formula in section 3 and mint on claim. A jail slashes 10% of that validator’s self-stake and 10% of each delegation into the treasury, once, pauses rewards, and refuses new stake. Genesis self-stake is 0.</p>
+  <p>Voting power is liquid ZendoCoin plus delegated stake. A proposal lasts 5 days, costs 1 Z, and needs 100 Z of power to file. It passes when yes exceeds no and yes plus no is at least 1,000 Z. Abstain is stored and does not count toward that quorum. A second active proposal with the same parameter or the same title is rejected before the fee. A passing vote may change block time, finality depth, trade fee, creator share, staking APR, graduation size, minimum stake, unbonding length, the optional fee skim, and the gas amounts. It cannot change the 1,000,000,000 base supply, the 18 decimals, or the founder amounts.</p>
+  <h3>Launchpad registry</h3>
+  <p>Creating a coin pushes it to the front of the coin list and creates an account for the curve. The mint, symbol, creator, virtual reserves, and later the pool reserves are the registry. Hidden coins drop off the board and cannot be traded. There is no separate smart-contract factory on zendo-1.</p>
+  <h3>When the chain is “on”</h3>
+  <p>The chain is on when this process is running and the state file is readable. Signup, trading, staking, and governance do not wait for a second ceremony. The founder clock is the exception: it stays empty until the first production HTTPS request from a public hostname, then it stamps once. A fresh ledger has no meme coins until an account pays the creation fee.</p>
+  <h3>Fees the chain collects</h3>
+  <p>Every fee below is ZendoCoin credited to the treasury, except the 0.30% creator share of a trade, which is credited to the coin creator.</p>
+  <table>
+    <thead><tr><th>Action</th><th>Fee</th></tr></thead>
+    <tbody>
+      <tr><td>Transfer, bridge withdrawal, or operator vault seed</td><td>0.001 Z, plus the amount locked or seeded</td></tr>
+      <tr><td>Create a meme coin</td><td>0.2 Z</td></tr>
+      <tr><td>Trade</td><td>1% of notional plus 0.0005 Z gas. Of the 1%, 0.30% goes to the creator and 0.70% to the treasury</td></tr>
+      <tr><td>Vote</td><td>0.002 Z</td></tr>
+      <tr><td>Proposal, grant application, or marketplace listing</td><td>1 Z</td></tr>
+      <tr><td>Promote</td><td>50 Z for 24 hours</td></tr>
+      <tr><td>Stake</td><td>0.001 Z plus the bonded amount, which is locked rather than taken as a fee</td></tr>
+    </tbody>
+  </table>
+  <p>Optional MEV skim, off by default, adds 0.05% to the trade fee. It is a fee bump, not a public mempool auction. Staking rewards are paid to delegators and validators. They are not treasury revenue.</p>
+  <p>The same license note in section 1 applies here. Non-custodial intent means no fiat till and no stored phrase. It is not a determination that no license applies.</p>
+
+  <h2>5. Meme-coin launchpad</h2>
+  <h3>Who can create a coin</h3>
+  <p>Any signed-in <code>znd1</code> wallet with at least 0.2 Z plus enough Z for the first trades. The form requires a name, a ticker of 2 to 8 characters starting with a letter (<code>ZCOIN</code> and <code>ZENDO</code> are reserved), a description of 10 to 280 characters, one emoji from a set of 20, and a hue from 0 to 360. There is no image upload and no website or social-link field. If the balance is too low, the debit fails and no coin is registered.</p>
+  <h3>Step by step</h3>
+  <ol>
+    <li>The person opens Create Coin while signed in.</li>
+    <li>The server checks the ticker is free and the launchpad flag is on.</li>
+    <li>It debits 0.2 Z from the creator and credits the treasury.</li>
+    <li>It registers the coin: mint, name, symbol, description, emoji, hue, creator address, time, and curve reserves.</li>
+    <li>It writes a coin-create transaction and seals a block.</li>
+    <li>The browser opens the coin page. The curve is tradable immediately. The first trade is what starts the printed chart.</li>
+  </ol>
+  <h3>Supply and pricing</h3>
+  <table>
+    <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Decimals</td><td>6</td></tr>
+      <tr><td>Total supply</td><td>1,000,000,000 tokens, fixed at creation. The creator does not receive a pre-mine</td></tr>
+      <tr><td>Sold on the curve</td><td>Up to 800,000,000</td></tr>
+      <tr><td>Virtual ZendoCoin</td><td>30 Z. Not taken from a wallet</td></tr>
+      <tr><td>Virtual tokens</td><td>1,073,000,000</td></tr>
+      <tr><td>Invariant</td><td>k = virtual Z × virtual tokens</td></tr>
+      <tr><td>Opening price</td><td>30 / 1,073,000,000 Z per token, about 0.00000002796 Z</td></tr>
+      <tr><td>Opening mark on full supply</td><td>About 27.96 Z before any real ZendoCoin is deposited</td></tr>
+      <tr><td>Graduation</td><td>85 Z of real net deposits, or the 800,000,000 sale cap</td></tr>
+    </tbody>
+  </table>
+  <p>A buy debits gross Z plus 0.0005 Z gas. Only the remaining 99% enters the curve. Tokens out equal old virtual tokens minus k divided by the new virtual Z. If the buy would pass 800,000,000 sold, the engine shrinks the fill and the screen says so. A sell reverses the curve, will not buy back more than has been sold, and fails if the proceeds cannot cover gas. Real reserves are current virtual Z minus 30. The progress bar is that amount divided by 85.</p>
+  <p>At 85 Z of net deposits, about 793 million tokens have been sold. The pool is then seeded with that real Z and with 1,000,000,000 minus tokens sold (about 207 million tokens). Later trades use the same constant-product formula on the pool. There is no fixed-price mode, no Raydium or PumpSwap listing, and no LP token. The virtual 30 Z never becomes real coins.</p>
+  <p>Price in Z rises when people buy and falls when they sell, on every fill, before and after graduation. Market cap on the card is spot price times the full 1,000,000,000 supply, including tokens still in the curve or pool. A 24-hour volume figure sums Z traded in that window.</p>
+  <h3>Discovery, threads, and hooks</h3>
+  <p>Sorts are trending, new, graduating, and volume. Trending score is 24-hour Z volume times 8, plus vote score times 6, plus 800 if the coin is inside a paid promotion window, plus 40 if the coin is under 12 hours old, plus 15 if the creator had already attached a referral code. Promotion can be stacked by buying another 24 hours before the window ends. Only the creator or an admin can promote.</p>
+  <p>Each coin has a holder list (top 8), a thread of up to 100 replies, an upvote, a report (Scam, Spam, Impersonation, Other), and a share link. The engine can store a downvote. The screen sends upvote or clear. Reports go to the operator desk, which can hide the coin.</p>
+  <p>Chain governance and staking are ZendoCoin-wide. They are not a separate DAO inside each meme coin. A meme-coin upvote is one vote per address, not a stake of ZendoCoin. There is no per-coin staking contract. Someone who wants parameter changes or a treasury grant uses the ZendoCoin governance and grant screens.</p>
+  <h3>Launchpad revenue</h3>
+  <p>The protocol receives 0.2 Z at creation, 0.70% of trade notional, 0.0005 Z trade gas, and 50 Z when a coin is promoted. The creator receives 0.30% of trade notional, paid to their <code>znd1</code> wallet, and can read the total on the coin page. All of those figures are ZendoCoin, not dollars.</p>
+  <h3>Compared with pump.fun</h3>
+  <p>Both let a person create a fixed-supply token and trade it on a virtual curve until a threshold moves liquidity into a pool. Zendo’s pool stays inside this ledger. Pump.fun’s tokens are Solana tokens that can trade where SOL already has buyers. Zendo has no livestream, no king-of-the-hill race, no image metadata, no outside wallet, and no fiat on-ramp. “Outperforms” is not something this curve can demonstrate against a market it does not reach. The practical difference is that a Zendo coin is immediately tradable by anyone who already holds ZendoCoin on this node, and it never leaves this node.</p>
+  <p>The launchpad is available as soon as the process is up. An empty ledger also shows the six seeded demo coins. No operator has to enable the board after the founder clock stamps.</p>
+
+  <h2>6. Comparison with other cryptocurrencies, chains, and launchpads</h2>
+  <table>
+    <thead><tr><th></th><th>Zendo as shipped</th><th>pump.fun</th><th>Solana</th><th>Ethereum</th></tr></thead>
+    <tbody>
+      <tr><td>Where balances live</td><td>One state file on the operator’s machine</td><td>Solana accounts</td><td>Many validators</td><td>Many validators</td></tr>
+      <tr><td>User key</td><td>12 words derive znd1. Later actions use the session</td><td>A Solana wallet signs</td><td>The holder signs</td><td>The holder signs</td></tr>
+      <tr><td>Quote asset</td><td>ZendoCoin</td><td>SOL</td><td>SOL and SPL tokens</td><td>ETH and ERC-20 tokens</td></tr>
+      <tr><td>Launch a meme coin</td><td>0.2 Z, curve, then an in-app pool</td><td>Curve, then an outside Solana market</td><td>Token program plus a market someone lists</td><td>ERC-20 plus a pool someone lists</td></tr>
+      <tr><td>Exchange listing</td><td>Not included</td><td>Possible because the token is on Solana</td><td>Common</td><td>Common</td></tr>
+      <tr><td>Dollar price in the app</td><td>Not quoted</td><td>Quoted against SOL, which has outside prices</td><td>Outside markets</td><td>Outside markets</td></tr>
+      <tr><td>Governance of chain parameters</td><td>In the same app, ZendoCoin-weighted</td><td>Not the chain’s governance</td><td>Separate</td><td>Separate</td></tr>
+      <tr><td>Staking</td><td>In the same app, 8% before commission, minted on claim</td><td>Not the product</td><td>Native staking</td><td>Native staking</td></tr>
+      <tr><td>Explorer</td><td>In the same app, about the last 320 blocks</td><td>Solana explorers</td><td>Public explorers</td><td>Public explorers</td></tr>
+      <tr><td>Second chain</td><td>Lock on zendo-1, signed release of ERC-20 already in the Polygon bridge. Operator key is trusted for that signature</td><td>Solana-native</td><td>Solana-native</td><td>Many L2s, including Polygon as its own network</td></tr>
+      <tr><td>Cost to run the node</td><td>One small virtual machine and a durable disk</td><td>The operator does not run Solana</td><td>Validator hardware and stake</td><td>Validator hardware and stake</td></tr>
+    </tbody>
+  </table>
+  <p>The advantage that is actually in the software is concentration: one login reaches a wallet, a launch board, an explorer, staking, and votes, and the operator does not pay Ethereum or Solana gas for those in-app movements. The advantages that are not in the software are outside liquidity, independent validators, user-signed transactions on every transfer, and a public dollar price. A coin that already trades on an exchange has buyers this ledger does not have. Absence from those exchanges does not make ZendoCoin outperform them.</p>
+  <p>ZendoCoin’s utility, inside this app, is concrete: it is the only gas token, the only vote weight, the only stake asset, and the only quote asset for the curve. That utility does not by itself create a dollar price.</p>
+
+  <h2>7. The real-world problem this software fits</h2>
+  <p>The problem that matches the code is narrow. A small group wants one place to host a gas coin, a meme-coin board, wallets, an explorer, votes, and grants, without calling another chain for those balances and without the server storing raw recovery phrases. Fees are written in a config file. Founder coins are in named locks. A new meme coin costs 0.2 Z and trades on reserves a person can read.</p>
+  <p>It does not, by itself, teach a newcomer who has never held a coin, and it does not give that newcomer ZendoCoin. The signup path is short — phrase, quiz, PIN, wallet — and the balance is zero. Mobile layout and a sideload WebView make the same site usable on a phone. They do not put the app in the Play Store, and they do not make the public allocation claimable.</p>
+  <p>Publishing the site makes the interface reachable. It does not create an outside market. The phrase about licenses in section 1 still applies: avoiding a fiat till and avoiding stored phrases is a design choice, not a ruling that no license is required, and not a statement that the software is available in every country.</p>
+
+  <h2>8. Revenue and value, in the units the ledger uses</h2>
+  <h3>What the treasury receives</h3>
+  <p>The app does not charge dollars. “How Zendo makes money” in this codebase means how ZendoCoin accumulates in the protocol treasury:</p>
+  <ul>
+    <li>Launchpad: 0.2 Z per coin, 0.70% of each trade, 0.0005 Z trade gas, 50 Z per promotion.</li>
+    <li>Chain usage: 0.001 Z per transfer, 0.002 Z per vote, 1 Z per proposal, grant application, or marketplace listing, 0.001 Z per stake.</li>
+    <li>Slashes: 10% of a jailed validator’s self-stake and delegations, once.</li>
+    <li>The optional 0.05% trade bump, if an operator turns it on.</li>
+  </ul>
+  <p>Creators make their 0.30% trade share. Delegators make staking rewards, which increase supply. Those rewards are not protocol profit. Grants pay 1 to 5,000 Z out of the treasury after a vote, so a grant is an outflow.</p>
+  <h3>What is not a revenue line</h3>
+  <p>ZendoCoin does not pay a dividend. The chain does not sell block space for dollars. Polygon deployment does not send a fee back to the zendo-1 treasury. If a Polygon token later trades on an outside market, that trade is not recorded here and is not protocol revenue unless some separate arrangement says so. No such arrangement is in this repository.</p>
+  <h3>How value moves up or down</h3>
+  <ul>
+    <li>Meme-coin price in Z rises on buys and falls on sells, immediately, on the curve and later on the pool.</li>
+    <li>Graduation changes the reserves the formula uses. It does not guarantee a higher price.</li>
+    <li>Promotion can raise a coin on the trending sort. It does not change the curve price by itself.</li>
+    <li>ZendoCoin coin count rises when rewards are claimed, which can dilute holders if demand does not rise with it.</li>
+    <li>Usage of gas and the launchpad increases the treasury’s Z balance. That is an internal transfer from users to the treasury, not a dollar gain.</li>
+    <li>Governance can raise or lower fees and the staking rate inside the allowed ranges. It cannot mint a new base supply.</li>
+    <li>A Polygon release can put ERC-20 ZCOIN in an outside wallet. This app still does not quote that token in dollars. Selling it for POL or for dollars happens in that outside wallet, not in this ledger.</li>
+  </ul>
+  <p>If someone converts the 0.70% trade fee into dollars, one billion dollars of protocol fees at that rate would require on the order of 140 billion dollars of trade notional in a year, and a stable dollar price for Z. This ledger has neither that volume nor that price. The fee schedule can support a small board whose treasury grows when existing holders trade. It is not, by itself, a plan that produces billions of dollars.</p>
+
+  <h2>9. What starts when the app is published</h2>
+  <p>When the process is up on a reachable host, these work without a second switch:</p>
+  <ul>
+    <li>Wallet signup, sign-in, password reset, and phrase recovery.</li>
+    <li>The launchpad, including create, buy, sell, reply, report, and promote.</li>
+    <li>Transfers, staking, unbonding, and reward claims.</li>
+    <li>Proposals, votes, and grant applications.</li>
+    <li>The explorer, search, and the status stream (about every 2 seconds).</li>
+    <li>Block production about every 5 seconds, plus an immediate block on each user action.</li>
+  </ul>
+  <p>On the first production HTTPS request from a public hostname, the founder clock stamps and stays stamped. No founder coins move that day. Yearly releases later are automatic. The operator does not press a launch button for that clock.</p>
+  <p>These do not happen by publishing the site:</p>
+  <ul>
+    <li>New users do not receive ZendoCoin.</li>
+    <li>The 649,280,000 public-allocation account is not paid out.</li>
+    <li>ZendoCoin is not listed on an exchange and has no dollar price.</li>
+    <li>The Polygon token and bridge contracts are not deployed by the website. A founder still compiles, sets addresses, funds a deployer with POL, broadcasts, and sends ZCOIN into the bridge contract.</li>
+    <li>The Android package does not appear in the Play Store. It is a sideload WebView whose saved node address must point at the host.</li>
+    <li>A host that erases its disk erases every wallet. Serverless disks that disappear are the wrong place for this file.</li>
+  </ul>
+  <p>Before a public host, change the seeded operator password and serve HTTPS. The license question in section 1 remains open. It is not answered by the act of publishing.</p>
+
+  <h2>10. Top to bottom</h2>
+  <h3>Components</h3>
+  <ul>
+    <li>Browser or Android WebView.</li>
+    <li>Next.js pages: home, launchpad, coin, create, wallet, send, stake, settings, governance, grants, marketplace, explorer, ZendoCoin, learn, onboarding, white paper, contact, operator desk, download.</li>
+    <li>HTTP API under <code>/api</code> for auth, wallet, coins, stake, governance, grants, market, admin, health, a status stream, and JSON-RPC.</li>
+    <li><code>lib/engine.ts</code> for every balance change, block, and vote.</li>
+    <li><code>founders.json</code> and <code>lib/zendo-supply.ts</code> for the 300,000,000 / 700,000,000 split. Louis Conner is Co-founder and President.</li>
+    <li><code>lib/curve.ts</code> for quotes.</li>
+    <li><code>lib/vesting.ts</code> for the cliff and the yearly unlock.</li>
+    <li><code>data/state.json</code> as the only website ledger.</li>
+    <li><code>polygon/contracts/ZendoCoin.sol</code>, <code>polygon/contracts/ZendoBridge.sol</code>, <code>polygon/scripts/deploy.mjs</code>, and <code>polygon/scripts/deploy-bridge.mjs</code>.</li>
+    <li><code>lib/bridge-proof.ts</code> for the voucher, and <code>/app/bridge</code> for the signed-in screen.</li>
+    <li>Optional <code>zendo-node</code> Rust process, not on the website’s transfer path.</li>
+  </ul>
+  <h3>User flows</h3>
+  <p>Signup writes a hash and a <code>znd1</code> account at 0 Z. Recovery with the same words keeps that account. A transfer moves units inside the file and charges 0.001 Z. A stake locks Z and later mints a reward on claim. A vote writes weight and charges 0.002 Z. A coin create charges 0.2 Z and registers the curve. A buy or sell updates reserves, pays the 1% and gas, and can graduate the coin into the pool. A promotion charges 50 Z and marks the coin for 24 hours. A grant, if it passes and someone calls payout, moves 1 to 5,000 Z from the treasury to the applicant.</p>
+  <h3>Dependencies</h3>
+  <p>The in-app ledger does not call Ethereum, Solana, or Polygon to accept a <code>znd1</code> transfer. Polygon is used only if a person later configures an RPC and broadcasts the contract. There is no mail provider, no card processor, and no price oracle. The Android download of this PDF depends on the website being reachable from the phone. A localhost address is not reachable from a phone on another network.</p>
+  <h3>Smart contracts</h3>
+  <p>On zendo-1, meme coins and ZendoCoin are ledger accounts, not Solidity. On Polygon, this repository has <code>ZendoCoin.sol</code> and <code>ZendoBridge.sol</code>. Neither is deployed by the act of publishing the website.</p>
+  <h3>Revenue flow and value flow</h3>
+  <p>Users spend Z. The treasury and coin creators receive the fees in section 8. Stakers receive newly minted Z when they claim. Founder locks release on the schedule in section 3 into founder wallets, not into the treasury. Meme-coin prices move with trades. ZendoCoin has no in-app dollar price. A bridge withdrawal can move spendable Z into the vault and, after the holder submits the voucher, into an ERC-20 balance on Polygon.</p>
+
+  <h2>11. The Zendo to Polygon bridge</h2>
+  <h3>Model</h3>
+  <p>The bridge is lock-and-release. ZendoCoin’s 1,000,000,000 base supply is not minted again. Polygon ZCOIN’s constructor supply is not minted again. A withdrawal debits the user’s <code>znd1</code> wallet, credits the system account labeled Polygon bridge vault, and signs a voucher. <code>ZendoBridge.release</code> pays that amount from ERC-20 already sitting in the contract. A deposit is the reverse: the holder calls <code>lock</code> on Polygon, this node reads the receipt, and the vault pays the same amount back to that <code>znd1</code> address.</p>
+  <p>If the vault does not hold enough ZendoCoin, the deposit fails and nothing is credited. If the Polygon contract does not hold enough ZCOIN, <code>release</code> reverts in the holder’s wallet. Funding the Polygon contract is a separate transfer the founder makes after deployment. Seeding the zendo-1 vault is an operator action that moves coins from the operator wallet, not from the public-allocation account, and it does not create a Polygon voucher.</p>
+  <h3>Withdrawal, which is the cash-out path</h3>
+  <ol>
+    <li>Sign in and open Bridge.</li>
+    <li>Enter a Polygon address and an amount. The fee is 0.001 Z on top of the amount.</li>
+    <li>The node refuses the request if <code>ZENDO_POLYGON_BRIDGE</code> or <code>ZENDO_BRIDGE_PRIVATE_KEY</code> is missing. Coins stay spendable. There is no unsigned lock.</li>
+    <li>On success the screen shows the bridge address, chain id (137 unless <code>ZENDO_POLYGON_CHAIN_ID</code> overrides it), recipient, amount in base units, nonce, and a 65-byte signature. The same row is stored on the ledger. The private key is not stored and is not written to the log.</li>
+    <li>In a Polygon wallet the holder calls <code>release(recipient, amount, nonce, signature)</code> on the bridge contract. The contract recovers the signer, rejects a used nonce, rejects a high-s signature, then transfers ZCOIN. State is updated before the token transfer.</li>
+    <li>From that Polygon wallet the holder can send the ERC-20 to any other 0x address. That is the cash-out. It is not a card payout, a bank transfer, or a dollar conversion inside Zendo.</li>
+  </ol>
+  <p>After the voucher is signed, zendo-1 does not offer a refund. A refund plus a Polygon release would pay the same coins twice. The nonce is monotonic. Trimming old voucher rows on the website does not reuse a nonce.</p>
+  <h3>Deposit</h3>
+  <ol>
+    <li>The holder approves the bridge contract and calls <code>lock</code> with their 42-character <code>znd1</code> address and the amount.</li>
+    <li>The contract hashes that address with keccak256, pulls ZCOIN with <code>transferFrom</code>, and emits <code>Locked</code> with the sender, the hash, the amount, and a nonce.</li>
+    <li>In the Zendo bridge screen the holder pastes the Polygon transaction hash. The browser does not send an amount.</li>
+    <li>The node calls <code>eth_getTransactionReceipt</code> on <code>POLYGON_RPC_URL</code>, which must be https and must not contain a password. It accepts only a successful receipt, only logs from <code>ZENDO_POLYGON_BRIDGE</code>, and only the <code>Locked</code> topic.</li>
+    <li>It credits the signed-in <code>znd1</code> address when the log’s hash equals keccak256 of that address and the vault can pay. The replay key is the transaction hash plus the log index. A second submission of the same log is rejected.</li>
+  </ol>
+  <h3>What the signature covers</h3>
+  <p>The inner hash is keccak256 of the packed bytes <code>ZENDO_RELEASE_V1</code>, the chain id as uint256, the bridge address, the recipient, the amount, and the nonce. The signature is an Ethereum personal-sign over that 32-byte hash: recovery id 27 or 28, then r and s, with s at or below the secp256k1 half-order. A voucher for another chain, another bridge contract, another recipient, another amount, or another nonce does not recover to the configured signer.</p>
+  <p>This is an operator-signed bridge, not a trustless light client. Anyone who holds the bridge private key can sign a release for tokens the Polygon contract holds, even without a matching zendo-1 lock. The website itself signs only after a debit. The key belongs in the environment or in <code>data/bridge.key</code> with mode 0600. <code>polygon/scripts/deploy-bridge.mjs</code> prints the signer address and does not print the key. A dry run exits without broadcasting.</p>
+  <h3>What the bridge does not do</h3>
+  <ul>
+    <li>It does not move dollars, cards, or bank balances.</li>
+    <li>It does not deploy itself when the site goes live.</li>
+    <li>It does not make the operator a custodian of user phrases. The phrase is still not stored.</li>
+    <li>It does not remove the license question in section 1. A bridge to an outside token can change how an operator is regulated. That is a question for counsel.</li>
+    <li>Tests cover a signed voucher, a rejected bad signature, a lock that does not happen when the key is missing, a deposit larger than the vault, a deposit paid once, a second submission of the same log, a log that names a different znd1 address, and supply conservation. They do not broadcast to Polygon mainnet.</li>
+  </ul>
+  <h3>Where this is stronger, and what problem it leaves</h3>
+  <p>It is stronger as a single operator-run board: one host, one fee schedule, one wallet, one explorer, founder locks that do not need a manual claim, and a bridge that can move ZendoCoin to an outside Polygon wallet after the contracts are deployed and funded. It does not solve price discovery, fiat access, or distribution of the public allocation. Those gaps are why a new visitor can open the launchpad and still be unable to buy.</p>
+  <p class="meta">End of Zendo_Complete_Platform_Overview_v2.pdf. Figures match founders.json, lib/zendo-supply.ts, lib/curve.ts, lib/vesting.ts, lib/engine.ts, polygon/contracts/ZendoCoin.sol, and polygon/contracts/ZendoBridge.sol.</p>
+</body>
+</html>

@@ -1,0 +1,128 @@
+# Zendo chain parameters for zendo-1. The node reads this file on first boot.
+network_id = "zendo-1"
+chain_name = "Zendo"
+poh_enabled = true
+block_time_ms = 5000
+finality_depth = 2
+# File timestamp only. Founder vesting does not use this date.
+# The vesting clock starts once, on the first public HTTPS visit, and is stored in the ledger.
+genesis_time = "2025-06-01T00:00:00Z"
+
+[distribution]
+zcoin_supply = "1000000000"
+zcoin_decimals = 18
+# These basis-point keys are not a mint schedule. Genesis locks founder coins
+# from lib/zendo-founders.ts and the liquid public pool from lib/zendo-supply.ts.
+founder_bps = 0
+faucet_bps = 0
+validator_bps = 0
+treasury_bps = 0
+airdrop = "0"
+
+[vesting]
+cliff_days = 120
+years = 4
+yearly_unlock_bps = 2500
+
+[staking]
+apr_bps = 800
+min_delegate = "1"
+unbonding_blocks = 2
+
+[gas]
+transfer = "0.001"
+create_coin = "0.2"
+trade = "0.0005"
+vote = "0.002"
+proposal = "1"
+promote = "50"
+stake = "0.001"
+
+[fees]
+# 1% of a trade. 0.30% of notional goes to the coin creator, 0.70% to the treasury.
+trade_bps = 100
+creator_bps = 30
+
+[launchpad]
+virtual_z = "30"
+graduation_z = "85"
+meme_decimals = 6
+sale_tokens = "800000000"
+total_tokens = "1000000000"
+virtual_tokens = "1073000000"
+
+[features]
+mev = false
+premium_rpc = true
+governance = true
+launchpad = true
+
+[[validators]]
+moniker = "North Arch"
+commission_bps = 400
+status = "active"
+region = "ashburn"
+uptime_bps = 9992
+
+[[validators]]
+moniker = "Harbor Relay"
+commission_bps = 500
+status = "active"
+region = "frankfurt"
+uptime_bps = 9984
+
+[[validators]]
+moniker = "Cedar Quorum"
+commission_bps = 450
+status = "active"
+region = "singapore"
+uptime_bps = 9971
+
+[[validators]]
+moniker = "Lime Hollow"
+commission_bps = 300
+status = "active"
+region = "dublin"
+uptime_bps = 9996
+
+[[validators]]
+moniker = "Glass Mesa"
+commission_bps = 700
+status = "active"
+region = "sao-paulo"
+uptime_bps = 9910
+
+[[validators]]
+moniker = "Redwood Seal"
+commission_bps = 550
+status = "active"
+region = "tokyo"
+uptime_bps = 9964
+
+[[validators]]
+moniker = "Kite Span"
+commission_bps = 600
+status = "active"
+region = "sydney"
+uptime_bps = 9948
+
+[[validators]]
+moniker = "Orchard Gate"
+commission_bps = 350
+status = "active"
+region = "montreal"
+uptime_bps = 9988
+
+[[validators]]
+moniker = "Saltworks"
+commission_bps = 500
+status = "pending"
+region = "chicago"
+uptime_bps = 10000
+
+[[validators]]
+moniker = "Paper Lantern"
+commission_bps = 450
+status = "pending"
+region = "seoul"
+uptime_bps = 10000

@@ -1,0 +1,42 @@
+# Two ledger shards and a stateless gateway. Scale the gateway with:
+# docker compose -f docker-compose.fleet.yml up --scale gateway=4
+# Raise ZENDO_SHARD_COUNT and add a service per shard before you expect more transfer capacity.
+services:
+  shard-0:
+    build: .
+    environment:
+      NODE_ENV: production
+      ZENDO_SHARD_COUNT: "2"
+      ZENDO_SHARD_INDEX: "0"
+      ZENDO_SHARD_SECRET: ${ZENDO_SHARD_SECRET:?set ZENDO_SHARD_SECRET}
+      ZENDO_SHARD_URLS: http://shard-0:38471,http://shard-1:38471
+    volumes:
+      - shard0:/app/data
+    restart: unless-stopped
+  shard-1:
+    build: .
+    environment:
+      NODE_ENV: production
+      ZENDO_SHARD_COUNT: "2"
+      ZENDO_SHARD_INDEX: "1"
+      ZENDO_SHARD_SECRET: ${ZENDO_SHARD_SECRET:?set ZENDO_SHARD_SECRET}
+      ZENDO_SHARD_URLS: http://shard-0:38471,http://shard-1:38471
+    volumes:
+      - shard1:/app/data
+    restart: unless-stopped
+  gateway:
+    build: .
+    ports:
+      - "38471:38471"
+    environment:
+      NODE_ENV: production
+      ZENDO_ROLE: gateway
+      ZENDO_SHARD_COUNT: "2"
+      ZENDO_SHARD_URLS: http://shard-0:38471,http://shard-1:38471
+    depends_on:
+      - shard-0
+      - shard-1
+    restart: unless-stopped
+volumes:
+  shard0: {}
+  shard1: {}

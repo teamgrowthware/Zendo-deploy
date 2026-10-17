@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zendo for the cofounders</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; background: #0a0a0a; color: #f4f1e6; font: 17px/1.55 Georgia, "Iowan Old Style", serif; }
+    main { max-width: 40rem; margin: 0 auto; padding: 1.5rem 1.1rem 3rem; }
+    h1 { font-size: 1.8rem; line-height: 1.15; margin: 0 0 0.4rem; }
+    h2 { font-size: 1.15rem; margin: 1.8rem 0 0.4rem; color: #ffd700; }
+    p { margin: 0.7rem 0; }
+    .kicker { color: #c8ff00; font: 600 0.75rem/1.4 ui-sans-serif, system-ui, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; }
+    ol { margin: 0.6rem 0 0; padding-left: 1.2rem; }
+    li { margin: 0.7rem 0; }
+    code { font-family: ui-monospace, monospace; font-size: 0.86em; word-break: break-all; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="kicker">ZendoCoin · $ZCoin</p>
+  <h1>For the cofounders</h1>
+  <p>Louis Conner, Co-founder and President. Prabhat Agrawal. Pratyaksh Lutare. 10 October 2026.</p>
+
+  <h2>What Zendo is</h2>
+  <p>Zendo is one app that runs the Zendo blockchain, the ZendoCoin wallet, and a meme coin launchpad together. People hold and send ZendoCoin, stake it on the chain, and create and trade meme coins from the same app, while $ZCoin is the coin that pays for those actions.</p>
+  <p>There are two ledgers, and they stay separate until the bridge. The app chain is zendo-1. Balances there live in the wallet that created them, on the machine that runs the node. $ZCoin on Polygon is the public coin outside the app. Holding coins in the app does not put tokens in a Polygon wallet. Staking rewards are new coins on zendo-1 only. They do not mint Polygon $ZCoin. Polygon supply stays 1,000,000,000. The bridge is the only meeting point, and it locks coins the vault already holds and releases those same coins. It does not mint.</p>
+
+  <h2>The coin</h2>
+  <p>Ticker is $ZCoin. Decimals are 18. Total supply is 1,000,000,000. The public allocation is 700,000,000. The founder total is 300,000,000, which is 30 percent.</p>
+  <p>Louis Conner, Co-founder and President, holds 200,000,000 at <code>0x18a0730008034177b40F1172aA5953a37dAE7102</code>.</p>
+  <p>Prabhat Agrawal holds 50,000,000 at <code>0xD319679625599303393084671a3AdaB52ea999B3</code>.</p>
+  <p>Pratyaksh Lutare holds 50,000,000 at <code>0x3336a52Cd82F01956147aed641F35694a235fbc9</code>.</p>
+  <p>Vesting is four years. The cliff is 120 days. Nothing is released during the cliff, including on the cliff day. After that, each founder unlocks 25 percent of that founder's own allocation at each 365-day anniversary. Year 1 is Louis 50,000,000, Prabhat 12,500,000, and Pratyaksh 12,500,000. Year 2 is 50 percent cumulative. Year 3 is 75 percent. Year 4 is 100 percent. Each founder calls release() and can take only their own coins. There is no admin key and no second mint. The Polygon clock starts at the deploy block. The app clock starts the first time the app is served on a public HTTPS host.</p>
+  <p>The contract we deploy for the public coin is ZendoCoinLaunch. It creates the token, creates the vesting contract, sends 300,000,000 to vesting, and sends 700,000,000 to the public recipient we paste at deploy. ZendoBridge is a separate contract. The launch contract does not deploy the bridge.</p>
+
+  <h2>What changed</h2>
+  <p>The app ledger no longer writes a single state.json file over itself. Balances, documents, and replay guards sit in data/zendo.sqlite. Writes are transactions. A concurrent test of four workers crediting the same balance 25 times each committed all 100 credits. If an old state.json is present on first boot, it is imported once and renamed. The same table layout is written down for Cloudflare D1 in cloudflare/d1-schema.sql. Key-value storage is the wrong place for balances. One process still owns the chain. A serverless host that wipes the disk would forget the wallets.</p>
+  <p>A Cloudflare edge check now sits in front of the API shape we care about. HTTPS is required. A health check reports that the ledger is SQLite and that the request arrived with TLS. Mutating API calls must be JSON and stay under the size cap. Withdrawals, deposits, and transfers are checked for address shape and a positive amount before anything is forwarded. On the preview host this answered with a Cloudflare ray. Our own domain and our own D1 database are not connected yet.</p>
+  <p>Polygon reads go through QUICKNODE_POLYGON_RPC_URL when that is set, and otherwise through POLYGON_RPC_URL. A check script pulled a Polygon mainnet block header and a transaction receipt. Chain id was 137. The QuickNode URL is not set on this preview, so the live watcher is not using our account yet. A public fallback was used only to prove the read path.</p>
+  <p>The bridge watcher is in the app. When a bridge address and an RPC are set, it scans Locked events, waits for confirmations, and credits the matching znd1 wallet if the vault can pay. The same lock cannot be credited twice. A withdrawal signs a voucher and will not sign the same nonce again. A full lock and release was run on a local chain that reported chain id 137. On this preview the watcher is idle, because the bridge address and the signing key are not set. A withdrawal attempt on that idle node refuses and leaves the coins in the wallet.</p>
+  <p>Prabhat's wallet is the checksummed address above. The launch bytecode was rebuilt so it contains that address. Pratyaksh's name in the contracts and the app is Pratyaksh Lutare. Louis's role string is Co-founder and President.</p>
+  <p>The signed-in app was clicked through. Home, menus, search, sign-in, a wrong password, the wallet, send, stake, the launchpad buy and a real sell, a new coin, the bridge refusal, a governance No vote, a grant, the marketplace, social, support, settings, the operator desk, password reset, a full signup with the 12-word phrase, and recovery all completed. Report and Promote on a coin completed. Promote charges 50 ZCoin for 24 hours. A sale of 1 token of a cheap coin is rejected because it does not cover the network fee. A larger sell goes through. Contract copy buttons copy each Solidity file. The learn-page quote runs. Explorer opens a block, a transaction, and an address. The phone-width menu reaches the same wallet.</p>
+  <p>Two fixes came out of that pass. Filling one field no longer erases the field before it, which matters when a phone fills email and password together. The theme no longer fights the first paint of the page. A saved video note now shows on the social page.</p>
+  <p>Fees inside the app are ZCoin. A transfer is 0.001 Z. Creating a coin is 0.2 Z. A trade is 1 percent plus 0.0005 Z gas, with 0.30 percent of the trade to the creator and 0.70 percent to the protocol. Promoting a coin is 50 Z for 24 hours. Stake and unstake are 0.001 Z. A vote is 0.002 Z. A proposal is 1 Z and needs 100 Z of voting power. Quorum is 1,000 Z. Grants are 1 to 5,000 Z from the treasury after a vote. New wallets start at 0. The faucet is closed. Founder unlocks and staking emissions are not revenue. This note is not a legal opinion and not an investment pitch.</p>
+
+  <h2>Where we are</h2>
+  <p>We can show the app, create a wallet, send, stake, launch a meme coin, and trade it on this node. The Polygon contracts match the three of us and the vesting rules. They have not been broadcast to Polygon mainnet. The bridge code can lock and release on a test chain. It is not watching mainnet. The preview address is a temporary tunnel. It will die. Phone download buttons that point at it have to be pointed at our real domain after we have one.</p>
+
+  <h2>What is left before the public</h2>
+  <ol>
+    <li>Put Zendo on one machine we control, with data/zendo.sqlite on a disk that survives restarts. Point our Cloudflare domain at that one process over HTTPS. One replica. The quick preview hostname is not the launch.</li>
+    <li>Set QUICKNODE_POLYGON_RPC_URL on that machine so the node reads Polygon through our endpoint.</li>
+    <li>Deploy ZendoCoinLaunch on Polygon mainnet, chain id 137. Remix or the deploy script. The only cost is Polygon gas in POL. In publicRecipient, paste the wallet that should receive the 700,000,000 public coins. Deploy ZendoCoinLaunch only. Do not deploy a generic token drop. That would skip vesting.</li>
+    <li>After the coin exists, set ZENDO_POLYGON_BRIDGE to the bridge contract and set ZENDO_BRIDGE_PRIVATE_KEY on the server, mode 0600, never in git. Until both are set, withdrawals stay refused and coins stay in the app wallet.</li>
+    <li>Change the seeded operator password and PIN before anyone else can reach the node. Password reset links are shown in the app. There is no mail server.</li>
+    <li>After the domain is live, point the phone download buttons at that HTTPS host. A tap has to be a plain link to the absolute https address, opened at the top of Chrome, with the file served as application/zip and the name ZendoApp2026.zip. That is the pattern that saves on Android.</li>
+  </ol>
+  <p>Contact for the project is zendo2026@proton.me.</p>
+</main>
+</body>
+</html>
