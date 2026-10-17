@@ -231,18 +231,33 @@ export async function persistLedgerPg(body: string, accounts: Record<string, Acc
     phase = "clear_balances";
     await client.query("DELETE FROM balances");
     phase = "write_balances";
+    const balanceRows: { address: string; asset: string; amount: string }[] = [];
     for (const [address, account] of Object.entries(accounts)) {
       for (const [asset, amount] of Object.entries(account.balances || {})) {
         if (!amount || amount === "0") continue;
-        await client.query("INSERT INTO balances (address, asset, amount) VALUES ($1, $2, $3)", [address, asset, amount]);
+        balanceRows.push({ address, asset, amount });
       }
+    }
+    if (balanceRows.length) {
+      await client.query(
+        `INSERT INTO balances (address, asset, amount)
+         SELECT * FROM unnest($1::text[], $2::text[], $3::text[])`,
+        [balanceRows.map((row) => row.address), balanceRows.map((row) => row.asset), balanceRows.map((row) => row.amount)],
+      );
     }
     const now = Date.now();
     phase = "write_replay_guards";
-    for (const key of replay) {
+    if (replay.length) {
       await client.query(
-        "INSERT INTO replay_guards (key, kind, detail, seen_at) VALUES ($1, $2, $3, $4) ON CONFLICT (key) DO NOTHING",
-        [key, key.startsWith("release:") ? "release" : "lock", key, now],
+        `INSERT INTO replay_guards (key, kind, detail, seen_at)
+         SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::bigint[])
+         ON CONFLICT (key) DO NOTHING`,
+        [
+          replay,
+          replay.map((key) => key.startsWith("release:") ? "release" : "lock"),
+          replay,
+          replay.map(() => now),
+        ],
       );
     }
     phase = "clear_transfers";
