@@ -286,15 +286,25 @@ export async function persistLedgerPg(body: string, accounts: Record<string, Acc
 }
 
 export async function loadLedgerPg(): Promise<{ body: string; replay: string[] } | null> {
-  const current = await readyRead();
-  const row = await current.query("SELECT body FROM documents WHERE id = 'chain'");
-  const body = row.rows[0]?.body;
-  if (typeof body !== "string" || !body) return null;
-  const guards = await current.query("SELECT key FROM replay_guards");
-  return {
-    body,
-    replay: guards.rows.map((item: { key?: string }) => String(item.key || "")).filter(Boolean),
-  };
+  const startedAt = Date.now();
+  let phase = "read_pool_ready";
+  try {
+    const current = await readyRead();
+    phase = "read_ledger_document";
+    const row = await current.query("SELECT body FROM documents WHERE id = 'chain'");
+    const body = row.rows[0]?.body;
+    if (typeof body !== "string" || !body) return null;
+    phase = "read_replay_guards";
+    const guards = await current.query("SELECT key FROM replay_guards");
+    return {
+      body,
+      replay: guards.rows.map((item: { key?: string }) => String(item.key || "")).filter(Boolean),
+    };
+  } catch (error) {
+    const tagged = withDatabasePhase(error, phase, startedAt);
+    logEvent("postgres_read_failed", safeDiagnostic(tagged));
+    throw tagged;
+  }
 }
 
 export async function readBalancePg(address: string, asset = "ZCOIN"): Promise<string> {
