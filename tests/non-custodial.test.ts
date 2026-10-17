@@ -19,17 +19,23 @@ test("a client-signed signup stores the public key and no phrase material", asyn
   const started = await engine.beginSignupClient({ email: "client@example.com", password: "Harbor-Lamp-42", displayName: "Client" });
   assert.ok(started.pendingId);
   assert.ok(started.challenge);
+  let state = await readStateAsync();
+  assert.ok(state);
+  assert.equal(state.users.some((row) => row.email === "client@example.com"), false, "signup must remain pending until onboarding is complete");
 
   const committed = await engine.commitSignup(started.pendingId, {
     publicKey: toHex(wallet.publicKey),
     signature: signProof(wallet, "zendo-signup", started.challenge),
   });
   assert.equal(committed.l1Address, wallet.address);
+  state = await readStateAsync();
+  assert.ok(state);
+  assert.equal(state.users.some((row) => row.email === "client@example.com"), false, "phrase proof alone must not create the account");
 
   const created = await engine.choosePin(started.pendingId, "2580");
   assert.equal(created.l1Address, wallet.address);
 
-  const state = await readStateAsync();
+  state = await readStateAsync();
   assert.ok(state);
   const user = state.users.find((row) => row.email === "client@example.com");
   assert.ok(user);

@@ -155,7 +155,7 @@ export function SignUpForm() {
 
   if (step === "phrase") {
     return (
-      <AuthCard title="Write down the 12 words" body="These words were made on this device and never sent to Zendo. They are the only way back in if you lose the password and PIN.">
+      <AuthCard title="Write down the 12 words" body="These words were made on this device and never sent to Zendo. Your account is created only after you confirm this phrase and set your PIN. They are the only way back in if you lose the password and PIN.">
         <div className="zendo-grid zendo-grid-cols-2 zendo-gap-2 zendo-sm:zendo-grid-cols-3">
           {words.map((word, index) => (
             <div key={`${word}-${index}`} className="zendo-rounded-xl zendo-border zendo-border-line zendo-bg-ink zendo-px-3 zendo-py-2 zendo-text-sm">
@@ -194,7 +194,7 @@ export function SignUpForm() {
 
   if (step === "quiz") {
     return (
-      <AuthCard title="Confirm three words" body="Enter the words in the positions below. This checks that the phrase left the screen with you.">
+      <AuthCard title="Confirm three words" body="Enter the words in the positions below. This checks that the phrase left the screen with you; one final PIN step creates your account.">
         <form className="zendo-grid zendo-gap-3" onSubmit={confirmPhrase}>
           {quiz.map((index, position) => (
             <Field key={index} label={`Word ${index + 1}`}>
@@ -213,7 +213,7 @@ export function SignUpForm() {
 
   if (step === "pin") {
     return (
-      <AuthCard title="Set a 4-digit PIN" body="You'll enter this after your password. It stays on this device's session, not in an email.">
+      <AuthCard title="Set a 4-digit PIN" body="This final step creates your account. You'll enter this after your password. It stays on this device's session, not in an email.">
         <PinPad busy={busy} onComplete={savePin} />
         {error ? <p className="zendo-mt-4 zendo-text-center zendo-text-sm zendo-text-coral">{error}</p> : null}
       </AuthCard>
@@ -221,7 +221,7 @@ export function SignUpForm() {
   }
 
   return (
-    <AuthCard title="Create your wallet" body="Email and password open the account. A 12-word phrase made on this device recovers it and signs your transactions. A PIN locks the session.">
+    <AuthCard title="Create your wallet" body="Start setup with your email and password. Your account is created only after you confirm the 12-word phrase made on this device and set a PIN.">
       <form className="zendo-grid zendo-gap-4" onSubmit={start}>
         <Field label="Display name">
           <Input value={form.displayName} onChange={(event) => { const displayName = event.target.value; setForm((current) => ({ ...current, displayName })); }} required />
