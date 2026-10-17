@@ -82,6 +82,15 @@ let readPoolUrl = "";
 let schemaReady: Promise<void> | null = null;
 let cachedBytes = 0;
 
+type TimedDatabaseError = Error & { code?: unknown; zendoDbPhase?: string; zendoDbElapsedMs?: number };
+
+function withDatabasePhase(error: unknown, phase: string, startedAt: number): TimedDatabaseError {
+  const next: TimedDatabaseError = error instanceof Error ? error as TimedDatabaseError : new Error("PostgreSQL operation failed.");
+  next.zendoDbPhase = phase;
+  next.zendoDbElapsedMs = Date.now() - startedAt;
+  return next;
+}
+
 export function databaseUrl(): string {
   return writeDatabaseUrl();
 }
@@ -159,7 +168,11 @@ function getReadPool(): pg.Pool {
 async function readyWrite(): Promise<pg.Pool> {
   const current = getWritePool();
   if (!schemaReady) {
-    schemaReady = current.query(SCHEMA).then(() => undefined);
+    const startedAt = Date.now();
+    schemaReady = current.query(SCHEMA).then(() => undefined).catch((error) => {
+      schemaReady = null;
+      throw withDatabasePhase(error, "schema_initialize", startedAt);
+    });
   }
   await schemaReady;
   return current;
@@ -194,18 +207,26 @@ export async function countTransfersPg(): Promise<number> {
 }
 
 export async function persistLedgerPg(body: string, accounts: Record<string, AccountBalances>, replay: string[]) {
+  const startedAt = Date.now();
+  let phase = "acquire_connection";
   const current = await readyWrite();
-  const client = await current.connect();
+  let client: pg.PoolClient | null = null;
   try {
+    client = await current.connect();
+    phase = "begin";
     await client.query("BEGIN");
+    phase = "read_revision";
     const row = await client.query("SELECT revision FROM documents WHERE id = 'chain'");
     const revision = Number(row.rows[0]?.revision || 0) + 1;
+    phase = "upsert_document";
     await client.query(
       `INSERT INTO documents (id, revision, body) VALUES ('chain', $1, $2)
        ON CONFLICT (id) DO UPDATE SET revision = excluded.revision, body = excluded.body`,
       [revision, body],
     );
+    phase = "clear_balances";
     await client.query("DELETE FROM balances");
+    phase = "write_balances";
     for (const [address, account] of Object.entries(accounts)) {
       for (const [asset, amount] of Object.entries(account.balances || {})) {
         if (!amount || amount === "0") continue;
@@ -213,15 +234,18 @@ export async function persistLedgerPg(body: string, accounts: Record<string, Acc
       }
     }
     const now = Date.now();
+    phase = "write_replay_guards";
     for (const key of replay) {
       await client.query(
         "INSERT INTO replay_guards (key, kind, detail, seen_at) VALUES ($1, $2, $3, $4) ON CONFLICT (key) DO NOTHING",
         [key, key.startsWith("release:") ? "release" : "lock", key, now],
       );
     }
+    phase = "clear_transfers";
     await client.query("DELETE FROM transfers");
     const journal = journalRows(body);
     if (journal.length) {
+      phase = "write_transfers";
       await client.query(
         `INSERT INTO transfers (id, at, debit, credit, asset, amount)
          SELECT * FROM unnest($1::text[], $2::bigint[], $3::text[], $4::text[], $5::text[], $6::text[])`,
@@ -235,19 +259,23 @@ export async function persistLedgerPg(body: string, accounts: Record<string, Acc
         ],
       );
     }
-    await writeChainIndex(client, body);
+    await writeChainIndex(client, body, (next) => { phase = next; });
+    phase = "commit";
     await client.query("COMMIT");
+    phase = "database_size";
     const size = await client.query("SELECT pg_database_size(current_database()) AS bytes");
     cachedBytes = Number(size.rows[0]?.bytes || 0);
   } catch (error) {
-    try {
-      await client.query("ROLLBACK");
-    } catch {
-      /* rollback already finished */
+    if (client) {
+      try {
+        await client.query("ROLLBACK");
+      } catch {
+        /* rollback already finished */
+      }
     }
-    throw error;
+    throw withDatabasePhase(error, phase, startedAt);
   } finally {
-    client.release();
+    client?.release();
   }
 }
 
@@ -298,7 +326,7 @@ export async function addBalancePg(address: string, asset: string, delta: bigint
   }
 }
 
-async function writeChainIndex(client: pg.PoolClient, body: string) {
+async function writeChainIndex(client: pg.PoolClient, body: string, setPhase: (phase: string) => void) {
   let parsed: { blocks?: unknown; txs?: unknown; coins?: unknown; stakes?: unknown; proposals?: unknown } = {};
   try {
     parsed = JSON.parse(body) as { blocks?: unknown; txs?: unknown; coins?: unknown; stakes?: unknown; proposals?: unknown };
@@ -310,13 +338,19 @@ async function writeChainIndex(client: pg.PoolClient, body: string) {
   const coins = (Array.isArray(parsed.coins) ? parsed.coins : []) as { mint?: string; symbol?: string; createdAt?: number }[];
   const stakes = (Array.isArray(parsed.stakes) ? parsed.stakes : []) as { id?: string; address?: string; validatorId?: string; amount?: string }[];
   const proposals = (Array.isArray(parsed.proposals) ? parsed.proposals : []) as { id?: string; status?: string; author?: string }[];
+  setPhase("clear_chain_blocks");
   await client.query("DELETE FROM chain_blocks");
+  setPhase("clear_chain_txs");
   await client.query("DELETE FROM chain_txs");
+  setPhase("clear_chain_coins");
   await client.query("DELETE FROM chain_coins");
+  setPhase("clear_chain_stakes");
   await client.query("DELETE FROM chain_stakes");
+  setPhase("clear_chain_proposals");
   await client.query("DELETE FROM chain_proposals");
   const blockRows = blocks.filter((row) => Number.isInteger(row.height) && row.hash);
   if (blockRows.length) {
+    setPhase("write_chain_blocks");
     await client.query(
       `INSERT INTO chain_blocks (height, hash, at)
        SELECT * FROM unnest($1::bigint[], $2::text[], $3::bigint[])`,
@@ -325,6 +359,7 @@ async function writeChainIndex(client: pg.PoolClient, body: string) {
   }
   const txRows = txs.filter((row) => row.hash && row.from && row.to);
   if (txRows.length) {
+    setPhase("write_chain_txs");
     await client.query(
       `INSERT INTO chain_txs (hash, height, at, from_address, to_address, asset)
        SELECT * FROM unnest($1::text[], $2::bigint[], $3::bigint[], $4::text[], $5::text[], $6::text[])`,
@@ -340,6 +375,7 @@ async function writeChainIndex(client: pg.PoolClient, body: string) {
   }
   const coinRows = coins.filter((row) => row.mint && row.symbol);
   if (coinRows.length) {
+    setPhase("write_chain_coins");
     await client.query(
       `INSERT INTO chain_coins (mint, symbol, created_at)
        SELECT * FROM unnest($1::text[], $2::text[], $3::bigint[])`,
@@ -348,6 +384,7 @@ async function writeChainIndex(client: pg.PoolClient, body: string) {
   }
   const stakeRows = stakes.filter((row) => row.id && row.address && row.validatorId);
   if (stakeRows.length) {
+    setPhase("write_chain_stakes");
     await client.query(
       `INSERT INTO chain_stakes (id, address, validator_id, amount)
        SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::text[])`,
@@ -356,6 +393,7 @@ async function writeChainIndex(client: pg.PoolClient, body: string) {
   }
   const proposalRows = proposals.filter((row) => row.id && row.status && row.author);
   if (proposalRows.length) {
+    setPhase("write_chain_proposals");
     await client.query(
       `INSERT INTO chain_proposals (id, status, author)
        SELECT * FROM unnest($1::text[], $2::text[], $3::text[])`,

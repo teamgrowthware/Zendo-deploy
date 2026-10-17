@@ -17,11 +17,13 @@ export class ZendoError extends Error {
 function safeDiagnostic(error: unknown) {
   const candidate = error instanceof Error ? error.message : "unknown";
   const containsSensitiveValue = /(?:postgres(?:ql)?:\/\/|password|secret|token|authorization|cookie|phrase|private key|\bpin\b)/i.test(candidate);
-  const row = error as { code?: unknown; name?: unknown } | null;
+  const row = error as { code?: unknown; name?: unknown; zendoDbPhase?: unknown; zendoDbElapsedMs?: unknown } | null;
   return {
     error_class: typeof row?.name === "string" ? row.name.slice(0, 80) : "unknown",
     error_code: typeof row?.code === "string" || typeof row?.code === "number" ? String(row.code).slice(0, 40) : "unknown",
     error_message: containsSensitiveValue ? "redacted" : candidate.replace(/\s+/g, " ").slice(0, 240),
+    database_phase: typeof row?.zendoDbPhase === "string" ? row.zendoDbPhase.slice(0, 80) : "unknown",
+    database_elapsed_ms: typeof row?.zendoDbElapsedMs === "number" && Number.isFinite(row.zendoDbElapsedMs) ? Math.max(0, Math.floor(row.zendoDbElapsedMs)) : -1,
   };
 }
 
