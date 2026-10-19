@@ -39,11 +39,12 @@ export function BrandMark({ kind, className }: { kind: "coin" | "chain"; classNa
   const coin = kind === "coin";
   return (
     <Image
-      src={coin ? "/brand/zendocoin-logo.png" : "/brand/zendo-chain.svg"}
+      src={coin ? "/brand/zendocoin.svg" : "/brand/zendo-chain.svg"}
       alt={coin ? "ZendoCoin" : "Zendo Blockchain"}
-      width={coin ? 280 : 48}
-      height={coin ? 220 : 48}
-      className={cn(coin ? "zendo-h-16 zendo-w-auto" : "zendo-h-11 zendo-w-11", className)}
+      width={coin ? 292 : 48}
+      height={coin ? 48 : 48}
+      className={cn(coin ? "zendo-h-9 zendo-w-auto" : "zendo-h-11 zendo-w-11", className)}
+      unoptimized
     />
   );
 }

@@ -286,6 +286,181 @@ body {
   scrollbar-width: thin;
 }
 
+/* Authenticated wallet shell. These styles deliberately stay presentation-only:
+   routes, wallet data, and transaction controls remain unchanged. */
+.zendo-app-frame {
+  width: min(100%, 76rem);
+  min-height: calc(100dvh - 4.5rem);
+}
+
+.zendo-app-sidebar {
+  background: linear-gradient(180deg, rgba(17, 17, 17, .5), rgba(10, 10, 10, 0));
+}
+
+.zendo-app-brand {
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.zendo-app-account {
+  margin-inline: .75rem;
+  border-block: 1px solid color-mix(in srgb, #31382a 80%, transparent);
+  padding-block: .9rem;
+}
+
+.zendo-app-nav-link {
+  min-height: 2.7rem;
+  font-weight: 560;
+  text-decoration: none;
+  transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.zendo-app-nav-link:hover {
+  transform: translateX(2px);
+}
+
+.zendo-app-nav-icon {
+  flex: 0 0 auto;
+  stroke-width: 1.8;
+}
+
+.zendo-app-content {
+  width: min(100%, 60rem);
+  justify-self: center;
+}
+
+.zendo-app-toolbar button {
+  min-width: 2.7rem;
+  min-height: 2.7rem;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.zendo-app-toolbar button:hover {
+  border-color: color-mix(in srgb, #c8ff00 45%, #31382a);
+  background: rgba(200, 255, 0, .06);
+}
+
+.zendo-app-wallet {
+  gap: 1.25rem;
+}
+
+.zendo-wallet-brand {
+  display: flex;
+  min-height: 2.25rem;
+  align-items: center;
+}
+
+.zendo-wallet-summary {
+  min-height: 14.75rem;
+  border-color: color-mix(in srgb, #c8ff00 22%, #31382a);
+  padding: clamp(1.35rem, 3vw, 1.6rem);
+}
+
+.zendo-wallet-balance {
+  letter-spacing: -.045em;
+  line-height: 1;
+}
+
+.zendo-wallet-actions {
+  align-items: center;
+}
+
+.zendo-wallet-action-primary {
+  min-width: 5.25rem;
+}
+
+.zendo-wallet-action-utilities {
+  margin-left: .25rem;
+}
+
+.zendo-wallet-action-utilities .zendo-inline-flex {
+  min-height: 2.5rem;
+  padding-inline: .7rem;
+}
+
+.zendo-receive-card,
+.zendo-qr-card {
+  min-height: 15.75rem;
+}
+
+.zendo-receive-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.zendo-wallet-address {
+  max-width: 54ch;
+  letter-spacing: .01em;
+  line-height: 1.7;
+}
+
+.zendo-receive-card p:last-child {
+  margin-top: auto;
+  border-top: 1px solid color-mix(in srgb, #31382a 80%, transparent);
+  padding-top: .9rem;
+}
+
+.zendo-qr-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.025), rgba(200,255,0,.045));
+}
+
+.zendo-qr-card img {
+  box-shadow: 0 0 0 1px rgba(200, 255, 0, .13), 0 12px 32px rgba(0, 0, 0, .22);
+}
+
+@media (max-width: 63.99rem) {
+  .zendo-wallet-action-utilities {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .zendo-app-frame {
+    min-height: calc(100dvh - 4.5rem);
+  }
+
+  .zendo-app-content {
+    width: 100%;
+    padding-inline: 1rem;
+    padding-top: 1.25rem;
+    padding-bottom: 5.75rem;
+  }
+
+  .zendo-app-toolbar {
+    margin-bottom: 1.25rem;
+  }
+
+  .zendo-wallet-summary {
+    min-height: 0;
+  }
+
+  .zendo-wallet-actions > .zendo-inline-flex:not(.zendo-wallet-action-utilities .zendo-inline-flex) {
+    flex: 1 1 8rem;
+  }
+
+  .zendo-wallet-action-utilities {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .zendo-wallet-action-utilities .zendo-inline-flex {
+    min-width: 0;
+    padding-inline: .35rem;
+    font-size: .75rem;
+  }
+
+  .zendo-receive-card,
+  .zendo-qr-card {
+    min-height: 0;
+  }
+
+  .zendo-qr-card {
+    min-height: 13rem;
+  }
+}
+
 @media (max-width: 47.99rem) {
   .zendo-site-footer > div,
   .zendo-site-footer > p {

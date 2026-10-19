@@ -39,29 +39,31 @@ export function AppFrame({ user, children }: { user: PublicUser; children: React
   const unread = notices.filter((notice) => !notice.read).length;
 
   return (
-    <div className="zendo-mx-auto zendo-grid zendo-max-w-6xl zendo-md:zendo-grid-cols-[220px_minmax(0,1fr)]">
-      <aside className="zendo-sticky zendo-top-16 zendo-hidden zendo-h-[calc(100vh-4rem)] zendo-border-r zendo-border-line zendo-py-6 zendo-pr-4 zendo-md:zendo-block">
-        <div className="zendo-px-3 zendo-pb-4">
+    <div className="zendo-app-frame zendo-mx-auto zendo-grid zendo-max-w-6xl zendo-md:zendo-grid-cols-[220px_minmax(0,1fr)]">
+      <aside className="zendo-app-sidebar zendo-sticky zendo-top-16 zendo-hidden zendo-h-[calc(100vh-4rem)] zendo-border-r zendo-border-line zendo-py-6 zendo-pr-4 zendo-md:zendo-block">
+        <div className="zendo-app-brand zendo-px-3 zendo-pb-4">
           {pathname.startsWith("/app/admin") ? <BrandMark kind="chain" /> : <BrandMark kind="coin" />}
         </div>
-        <p className="zendo-px-3 zendo-text-xs zendo-uppercase zendo-tracking-wider zendo-text-muted">{user.displayName}</p>
-        <p className="zendo-mt-1 zendo-truncate zendo-px-3 zendo-font-mono zendo-text-[11px] zendo-text-muted">{user.address}</p>
-        <nav className="zendo-mt-4 zendo-grid zendo-gap-1">
+        <div className="zendo-app-account">
+          <p className="zendo-text-xs zendo-uppercase zendo-tracking-wider zendo-text-muted">{user.displayName}</p>
+          <p className="zendo-mt-1 zendo-truncate zendo-font-mono zendo-text-[11px] zendo-text-muted" title={user.address}>{user.address}</p>
+        </div>
+        <nav className="zendo-app-nav zendo-mt-5 zendo-grid zendo-gap-1">
           {links.map((link) => {
             const Icon = link.icon;
             const active = pathname === link.href;
             return (
-              <Link key={link.href} href={link.href} className={cn("zendo-flex zendo-items-center zendo-gap-2 zendo-rounded-xl zendo-px-3 zendo-py-2 zendo-text-sm", active ? "zendo-bg-lime zendo-text-ink" : "zendo-text-muted hover:zendo-bg-white/5 hover:zendo-text-cream")}>
-                <Icon className="zendo-h-4 zendo-w-4" />
+              <Link key={link.href} href={link.href} className={cn("zendo-app-nav-link zendo-flex zendo-items-center zendo-gap-2 zendo-rounded-xl zendo-px-3 zendo-py-2 zendo-text-sm", active ? "zendo-bg-lime zendo-text-ink" : "zendo-text-muted hover:zendo-bg-white/5 hover:zendo-text-cream")}>
+                <Icon className="zendo-app-nav-icon zendo-h-4 zendo-w-4" />
                 {link.label}
               </Link>
             );
           })}
-          <Link href="/whitepaper" className="zendo-mt-2 zendo-flex zendo-items-center zendo-gap-2 zendo-rounded-xl zendo-px-3 zendo-py-2 zendo-text-sm zendo-text-muted hover:zendo-bg-white/5 hover:zendo-text-cream">Docs</Link>
+          <Link href="/whitepaper" className="zendo-app-nav-link zendo-mt-3 zendo-flex zendo-items-center zendo-gap-2 zendo-rounded-xl zendo-px-3 zendo-py-2 zendo-text-sm zendo-text-muted hover:zendo-bg-white/5 hover:zendo-text-cream">Docs</Link>
         </nav>
       </aside>
-      <div className="zendo-min-w-0 zendo-px-4 zendo-py-6 zendo-safe-pad zendo-md:zendo-pb-10">
-        <div className="zendo-mb-4 zendo-flex zendo-justify-end">
+      <div className="zendo-app-content zendo-min-w-0 zendo-px-4 zendo-py-6 zendo-safe-pad zendo-md:zendo-pb-10">
+        <div className="zendo-app-toolbar zendo-mb-5 zendo-flex zendo-justify-end">
           <button className="zendo-pointer zendo-relative zendo-rounded-full zendo-border zendo-border-line zendo-p-2" aria-label="Notifications" onClick={async () => {
             setOpen((value) => !value);
             if (unread) {
@@ -114,31 +116,33 @@ export function WalletHome() {
   if (error) return <p className="zendo-text-coral">{error}</p>;
   if (!data) return <LoadingPanel label="Loading wallet" />;
   return (
-    <div className="zendo-grid zendo-gap-4">
-      <BrandMark kind="coin" />
-      <Panel className="zendo-shadow-soft zendo-rounded-xl zendo-bg-[radial-gradient(600px_180px_at_100%_0%,rgba(216,255,62,0.14),transparent)]">
+    <div className="zendo-app-wallet zendo-grid zendo-gap-4">
+      <div className="zendo-wallet-brand"><BrandMark kind="coin" /></div>
+      <Panel className="zendo-wallet-summary zendo-shadow-soft zendo-bg-[radial-gradient(600px_180px_at_100%_0%,rgba(216,255,62,0.14),transparent)]">
         <p className="zendo-text-sm zendo-text-muted">Spendable ZendoCoin</p>
-        <p className="num zendo-mt-1 zendo-font-display zendo-text-4xl zendo-font-bold">{data.zcoin}</p>
+        <p className="num zendo-wallet-balance zendo-mt-1 zendo-font-display zendo-text-4xl zendo-font-bold">{data.zcoin}</p>
         <p className="zendo-mt-2 zendo-text-sm zendo-text-muted">Pending stake rewards {data.pendingRewards} Z</p>
-        <div className="zendo-mt-4 zendo-flex zendo-flex-wrap zendo-gap-2">
-          <Button onClick={() => router.push("/app/send")}>Send</Button>
-          <Button variant="outline" onClick={() => router.push("/app/bridge")}>Bridge</Button>
+        <div className="zendo-wallet-actions zendo-mt-5 zendo-flex zendo-flex-wrap zendo-gap-2">
+          <Button className="zendo-wallet-action-primary" onClick={() => router.push("/app/send")}>Send</Button>
           <Button variant="outline" onClick={() => document.getElementById("receive")?.scrollIntoView({ behavior: "smooth" })}>Receive</Button>
-          <Button variant="ghost" onClick={() => router.push("/app/stake")}>Stake</Button>
-          <Button variant="ghost" onClick={() => router.push("/app/stake#claim")}>Claim Rewards</Button>
-          <Button variant="ghost" onClick={() => router.push("/governance")}>Governance</Button>
+          <Button variant="outline" onClick={() => router.push("/app/bridge")}>Bridge</Button>
+          <div className="zendo-wallet-action-utilities zendo-flex zendo-flex-wrap zendo-gap-1">
+            <Button variant="ghost" onClick={() => router.push("/app/stake")}>Stake</Button>
+            <Button variant="ghost" onClick={() => router.push("/app/stake#claim")}>Claim Rewards</Button>
+            <Button variant="ghost" onClick={() => router.push("/governance")}>Governance</Button>
+          </div>
         </div>
       </Panel>
-      <div className="zendo-grid zendo-gap-4 zendo-lg:zendo-grid-cols-[1fr_220px]">
-        <Panel id="receive">
+      <div className="zendo-receive-grid zendo-grid zendo-gap-4 zendo-lg:zendo-grid-cols-[minmax(0,1fr)_220px]">
+        <Panel id="receive" className="zendo-receive-card">
           <div className="zendo-flex zendo-items-center zendo-justify-between zendo-gap-3">
             <h2 className="zendo-font-semibold">Receive</h2>
             <CopyButton value={data.user.address} label="Copy address" />
           </div>
-          <p className="zendo-mt-2 zendo-break-all zendo-font-mono zendo-text-xs zendo-text-muted">{data.user.address}</p>
+          <p className="zendo-wallet-address zendo-mt-3 zendo-break-all zendo-font-mono zendo-text-xs zendo-text-muted">{data.user.address}</p>
           <p className="zendo-mt-3 zendo-text-sm zendo-text-muted">Referral code <span className="zendo-text-cream">{data.user.referralCode}</span> · {data.referralCount} joined</p>
         </Panel>
-        {data.qr ? <Panel className="zendo-grid zendo-place-items-center"><Image src={data.qr} alt="Wallet address QR code" width={160} height={160} unoptimized className="zendo-h-40 zendo-w-40 zendo-rounded-xl" /></Panel> : null}
+        {data.qr ? <Panel className="zendo-qr-card zendo-grid zendo-place-items-center"><Image src={data.qr} alt="QR code for this wallet address" width={160} height={160} unoptimized className="zendo-h-40 zendo-w-40 zendo-rounded-xl" /></Panel> : null}
       </div>
       <Panel>
         <h2 className="zendo-font-semibold">Resources</h2>
