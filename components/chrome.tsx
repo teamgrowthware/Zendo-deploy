@@ -123,9 +123,9 @@ export function SiteHeader() {
       <a href="#content" className="zendo-sr-only focus:zendo-not-sr-only focus:zendo-absolute focus:zendo-left-4 focus:zendo-top-3 focus:zendo-z-50 focus:zendo-rounded-lg focus:zendo-bg-lime focus:zendo-px-3 focus:zendo-py-2 focus:zendo-text-ink">
         Skip to content
       </a>
-      <div className="zendo-mx-auto zendo-flex zendo-h-16 zendo-max-w-6xl zendo-items-center zendo-gap-3 zendo-px-4">
-        <Logo />
-        <nav className="zendo-ml-4 zendo-hidden zendo-items-center zendo-md:zendo-flex">
+      <div className="zendo-site-container zendo-site-header-inner zendo-flex zendo-h-[4.5rem] zendo-items-center">
+        <Logo className="zendo-header-logo" />
+        <nav className="zendo-desktop-nav" aria-label="Primary navigation">
           <Link href="/launchpad" className="zendo-rounded-full zendo-px-3 zendo-py-2 zendo-text-sm hover:zendo-bg-white/5">Launchpad</Link>
           <Link href="/explorer" className="zendo-rounded-full zendo-px-3 zendo-py-2 zendo-text-sm hover:zendo-bg-white/5">Explorer</Link>
           <Link href="/search" className="zendo-rounded-full zendo-px-3 zendo-py-2 zendo-text-sm hover:zendo-bg-white/5">Search</Link>
@@ -147,29 +147,29 @@ export function SiteHeader() {
             <MenuLink href="/terms" title="Terms and conditions" detail="How the software may be used" />
           </Drop>
         </nav>
-        <div className="zendo-ml-auto zendo-hidden zendo-items-center zendo-gap-2 zendo-md:zendo-flex">
-          <div className="zendo-hidden zendo-w-40 zendo-lg:zendo-block zendo-xl:zendo-w-52 zendo-2xl:zendo-w-full">
+        <div className="zendo-header-actions">
+          <div className="zendo-header-search">
             <SearchBox compact />
           </div>
           {user ? (
             <>
-              <Link href="/app" className="zendo-text-sm zendo-text-muted hover:zendo-text-cream">{user.displayName}</Link>
-              <Button size="sm" onClick={() => router.push("/app")}>Wallet</Button>
-              <Button size="sm" variant="ghost" onClick={signOut}>Sign out</Button>
+              <Link href="/app" className="zendo-header-user zendo-text-sm zendo-text-muted hover:zendo-text-cream">{user.displayName}</Link>
+              <Button size="sm" className="zendo-header-auth-action" onClick={() => router.push("/app")}>Wallet</Button>
+              <Button size="sm" className="zendo-header-auth-action" variant="ghost" onClick={signOut}>Sign out</Button>
             </>
           ) : (
             <>
-              <Button size="sm" variant="ghost" onClick={() => router.push("/signin")}>Log In</Button>
-              <Button size="sm" onClick={() => router.push("/signup")}>Sign Up</Button>
+              <Button size="sm" className="zendo-header-auth-action" variant="ghost" onClick={() => router.push("/signin")}>Log In</Button>
+              <Button size="sm" className="zendo-header-auth-action" onClick={() => router.push("/signup")}>Sign Up</Button>
             </>
           )}
         </div>
-        <button className="zendo-pointer zendo-ml-auto zendo-rounded-lg zendo-p-2 zendo-md:zendo-hidden" aria-expanded={open} aria-label="Open menu" onClick={() => setOpen((value) => !value)}>
+        <button className="zendo-header-menu zendo-pointer zendo-ml-auto zendo-rounded-lg zendo-p-2" aria-expanded={open} aria-label="Open menu" onClick={() => setOpen((value) => !value)}>
           {open ? <X /> : <Menu />}
         </button>
       </div>
       {open ? (
-        <div className="zendo-mobile-drawer zendo-border-t zendo-border-line zendo-px-4 zendo-py-3 zendo-md:zendo-hidden">
+        <div className="zendo-mobile-drawer zendo-border-t zendo-border-line zendo-px-4 zendo-py-3">
           <div className="zendo-grid zendo-gap-1">
             {!appMode ? <div className="zendo-px-1 zendo-pb-2"><SearchBox compact /></div> : null}
             <Link href="/" className="zendo-rounded-xl zendo-px-3 zendo-py-2">Home</Link>

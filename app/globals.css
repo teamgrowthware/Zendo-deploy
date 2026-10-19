@@ -37,6 +37,160 @@ html {
   overflow-y: scroll;
 }
 
+/* Shared public-site layout primitives. They keep the visual grid consistent
+   without changing routes, data, or interactive behaviour. */
+.zendo-site-container {
+  width: min(100% - 2rem, 84rem);
+  margin-inline: auto;
+}
+
+.zendo-site-header-inner {
+  gap: 1.25rem;
+}
+
+.zendo-header-logo {
+  flex: 0 0 auto;
+}
+
+.zendo-desktop-nav,
+.zendo-header-actions {
+  display: none;
+}
+
+.zendo-header-menu {
+  display: inline-flex;
+}
+
+.zendo-mobile-drawer {
+  display: block;
+}
+
+.zendo-home-hero {
+  gap: clamp(2.5rem, 5vw, 5.5rem);
+  padding-block: clamp(4rem, 8vw, 7.5rem);
+}
+
+.zendo-home-hero-copy {
+  max-width: 43rem;
+}
+
+.zendo-home-heading {
+  max-width: 12ch;
+  font-size: clamp(2.75rem, 5vw, 4.65rem);
+  line-height: 1.02;
+}
+
+.zendo-home-heading-break {
+  display: none;
+}
+
+.zendo-home-utility-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem 1.2rem;
+  margin-top: 1rem;
+  color: #c5ccb6;
+  font-size: .875rem;
+  line-height: 1.4;
+}
+
+.zendo-home-utility-links a {
+  text-decoration: none;
+}
+
+.zendo-home-utility-links a:hover {
+  color: #c8ff00;
+}
+
+.zendo-home-stats {
+  gap: .75rem;
+}
+
+.zendo-home-stats > div {
+  display: flex;
+  min-height: 5.6rem;
+  flex-direction: column;
+  justify-content: space-between;
+  border-color: color-mix(in srgb, #c8ff00 18%, #31382a);
+  background: linear-gradient(145deg, rgba(255,255,255,.035), rgba(200,255,0,.045));
+  padding: 1rem;
+}
+
+.zendo-home-stats dd {
+  margin-top: .5rem;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+@media (min-width: 75rem) {
+  .zendo-desktop-nav {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: .05rem;
+  }
+
+  .zendo-desktop-nav > a,
+  .zendo-desktop-nav button {
+    white-space: nowrap;
+  }
+
+  .zendo-desktop-nav > a {
+    padding-inline: .5rem;
+  }
+
+  .zendo-desktop-nav button {
+    padding-inline: .55rem;
+  }
+
+  .zendo-header-actions {
+    display: flex;
+    min-width: 0;
+    margin-left: auto;
+    align-items: center;
+    gap: .35rem;
+  }
+
+  .zendo-header-search {
+    width: clamp(9.5rem, 12vw, 16rem);
+    min-width: 0;
+    margin-right: .2rem;
+  }
+
+  .zendo-header-auth-action,
+  .zendo-header-user {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .zendo-header-auth-action {
+    min-width: 4.65rem;
+  }
+
+  .zendo-header-menu,
+  .zendo-mobile-drawer {
+    display: none;
+  }
+
+  .zendo-home-heading-break {
+    display: block;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .zendo-site-container {
+    width: min(100% - 1.5rem, 84rem);
+  }
+
+  .zendo-home-hero {
+    padding-block: 3.5rem 4rem;
+  }
+
+  .zendo-home-heading {
+    font-size: clamp(2.5rem, 12vw, 3.25rem);
+  }
+}
+
 .zendo-desk-scroll {
   max-height: 24rem;
   overflow-y: auto;

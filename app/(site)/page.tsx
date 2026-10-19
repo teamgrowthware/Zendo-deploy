@@ -11,27 +11,31 @@ export default async function HomePage() {
   const data = await home();
   return (
     <div>
-      <section className="zendo-mx-auto zendo-grid zendo-max-w-6xl zendo-gap-10 zendo-px-4 zendo-py-14 zendo-lg:zendo-grid-cols-[1.1fr_0.9fr] zendo-lg:zendo-items-center">
-        <div>
+      <section className="zendo-site-container zendo-home-hero zendo-grid zendo-lg:zendo-grid-cols-[1.1fr_0.9fr] zendo-lg:zendo-items-center">
+        <div className="zendo-home-hero-copy">
           <Logo className="zendo-home-hero-logo" />
           <p className="zendo-mt-6 zendo-text-xs zendo-font-semibold zendo-uppercase zendo-tracking-[0.18em] zendo-text-lime">
             {data.status.chainName} · height {data.status.height} · {data.status.blockTimeMs / 1000}s slots
           </p>
-          <h1 className="zendo-mt-4 zendo-font-display zendo-text-4xl zendo-font-bold zendo-leading-[1.05] zendo-tracking-tight zendo-sm:zendo-text-5xl">
-            Host the chain. Launch the coin. Keep the keys.
+          <h1 className="zendo-home-heading zendo-mt-4 zendo-font-display zendo-font-bold zendo-tracking-tight">
+            Host the chain. Launch<br className="zendo-home-heading-break" /> the coin. Keep the keys.
           </h1>
           <p className="zendo-mt-5 zendo-max-w-xl zendo-text-lg zendo-leading-8 zendo-text-muted">
             Zendo is a persistent proof-of-stake chain, the ZendoCoin ledger, and a bonding-curve launchpad. You run the node. Balances stay in the wallets that created them.
           </p>
-          <div className="zendo-mt-7 zendo-flex zendo-flex-wrap zendo-gap-3">
-            <ZendoL1ZipLink className="zendo-pointer zendo-inline-flex zendo-h-12 zendo-items-center zendo-justify-center zendo-rounded-full zendo-bg-gold zendo-px-5 zendo-text-base zendo-font-semibold zendo-text-ink">Download ZendoDeployL1.zip</ZendoL1ZipLink>
+          <div className="zendo-home-actions zendo-mt-8">
+            <div className="zendo-flex zendo-flex-wrap zendo-gap-3">
             <Button size="lg" asChild><Link href="/signup">Create a wallet</Link></Button>
             <Button size="lg" variant="outline" asChild><Link href="/launchpad">Browse the launchpad</Link></Button>
-            <Button size="lg" variant="outline" asChild><Link href="/whitepaper">Read the white paper</Link></Button>
-            <ZendoCoinZipLink className="zendo-pointer zendo-inline-flex zendo-h-12 zendo-items-center zendo-justify-center zendo-rounded-full zendo-border zendo-border-line zendo-px-5 zendo-text-base zendo-font-semibold zendo-text-cream">Polygon contracts</ZendoCoinZipLink>
-            <Button size="lg" variant="outline" asChild><a href="/Zendo.apk">Android APK</a></Button>
+            </div>
+            <div className="zendo-home-utility-links">
+              <ZendoL1ZipLink>Download ZendoDeployL1.zip</ZendoL1ZipLink>
+              <Link href="/whitepaper">Read the white paper</Link>
+              <ZendoCoinZipLink>Polygon contracts</ZendoCoinZipLink>
+              <a href="/Zendo.apk">Android APK</a>
+            </div>
           </div>
-          <dl className="zendo-mt-8 zendo-grid zendo-grid-cols-1 zendo-gap-3 zendo-text-sm zendo-sm:zendo-grid-cols-3">
+          <dl className="zendo-home-stats zendo-mt-9 zendo-grid zendo-grid-cols-1 zendo-text-sm zendo-sm:zendo-grid-cols-3">
             <Stat k="Coins" v={String(data.status.coins)} />
             <Stat k="Validators" v={String(data.status.validators)} />
             <Stat k="TPS" v={String(data.status.tps)} />
