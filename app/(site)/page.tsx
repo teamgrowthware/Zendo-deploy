@@ -13,7 +13,7 @@ export default async function HomePage() {
     <div>
       <section className="zendo-mx-auto zendo-grid zendo-max-w-6xl zendo-gap-10 zendo-px-4 zendo-py-14 zendo-lg:zendo-grid-cols-[1.1fr_0.9fr] zendo-lg:zendo-items-center">
         <div>
-          <Logo />
+          <Logo className="zendo-home-hero-logo" />
           <p className="zendo-mt-6 zendo-text-xs zendo-font-semibold zendo-uppercase zendo-tracking-[0.18em] zendo-text-lime">
             {data.status.chainName} · height {data.status.height} · {data.status.blockTimeMs / 1000}s slots
           </p>

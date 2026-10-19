@@ -244,6 +244,9 @@ html[data-zendo-app="android"] body {
 
 html[data-zendo-app="android"] .zendo-site-footer { display: none; }
 
+/* The native shell already supplies the single app-level ZENDO wordmark. */
+html[data-zendo-app="android"] .zendo-home-hero-logo { display: none; }
+
 html[data-zendo-app="android"] .zendo-site-header > div {
   height: calc(3.8rem + env(safe-area-inset-top));
   padding-top: env(safe-area-inset-top);
