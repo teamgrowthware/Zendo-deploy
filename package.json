@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start -H 0.0.0.0 -p 38471",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "node --env-file=tests/test.env --import tsx --test tests/*.test.ts",
     "test:l1-integration": "node --env-file=tests/test.env --import tsx --test tests/integration/*.test.ts",
     "host-check": "node scripts/host-check.mjs",

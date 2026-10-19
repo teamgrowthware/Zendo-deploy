@@ -6,7 +6,7 @@ import Image from "next/image";
 import { ZendoL1ZipLink } from "@/components/zendo-l1-zip";
 import { ZendoCoinZipLink } from "@/components/zendocoin-zip";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { api } from "@/lib/sdk";
 import { CONTACT_EMAIL } from "@/lib/seed";
@@ -14,6 +14,18 @@ import type { PublicUser } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { Button } from "./ui";
 import { SearchBox } from "./search-box";
+
+function subscribeToAppMode() {
+  return () => {};
+}
+
+function getAppModeSnapshot() {
+  return document.documentElement.dataset.zendoApp === "android";
+}
+
+function getServerAppModeSnapshot() {
+  return false;
+}
 
 export function Logo({ className }: { compact?: boolean; className?: string }) {
   return (
@@ -80,17 +92,13 @@ export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [appMode, setAppMode] = useState(false);
+  const appMode = useSyncExternalStore(subscribeToAppMode, getAppModeSnapshot, getServerAppModeSnapshot);
   const [menuPath, setMenuPath] = useState(pathname);
   const [user, setUser] = useState<PublicUser | null>(null);
   if (menuPath !== pathname) {
     setMenuPath(pathname);
     setOpen(false);
   }
-
-  useEffect(() => {
-    setAppMode(document.documentElement.dataset.zendoApp === "android");
-  }, []);
 
   useEffect(() => {
     const ref = new URLSearchParams(window.location.search).get("ref");
