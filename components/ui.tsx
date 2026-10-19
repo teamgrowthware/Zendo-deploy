@@ -4,7 +4,7 @@ import type { ButtonHTMLAttributes, InputHTMLAttributes, LabelHTMLAttributes, Te
 import { cn } from "@/lib/cn";
 
 const buttonStyles = cva(
-  "zendo-pointer zendo-inline-flex zendo-items-center zendo-justify-center zendo-gap-2 zendo-font-semibold zendo-transition zendo-duration-150 disabled:zendo-not-allowed disabled:zendo-opacity-50 focus-visible:zendo-outline focus-visible:zendo-outline-2 focus-visible:zendo-outline-offset-2 focus-visible:zendo-outline-lime",
+  "zendo-pointer zendo-inline-flex zendo-items-center zendo-justify-center zendo-gap-2 zendo-font-semibold zendo-tracking-tight zendo-transition zendo-duration-150 disabled:zendo-not-allowed disabled:zendo-opacity-50 focus-visible:zendo-outline focus-visible:zendo-outline-2 focus-visible:zendo-outline-offset-2 focus-visible:zendo-outline-lime",
   {
     variants: {
       variant: {
@@ -40,7 +40,7 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={cn(
-        "zendo-text zendo-h-11 zendo-w-full zendo-rounded-xl zendo-border zendo-border-line zendo-bg-ink zendo-px-3 zendo-text-sm zendo-text-cream zendo-outline-none placeholder:zendo-text-muted/70 focus:zendo-border-lime",
+        "zendo-text zendo-h-11 zendo-w-full zendo-rounded-xl zendo-border zendo-border-line zendo-bg-ink zendo-px-3 zendo-text-sm zendo-text-cream zendo-outline-none zendo-transition placeholder:zendo-text-muted/70 focus:zendo-border-lime",
         props.className,
       )}
     />
@@ -52,7 +52,7 @@ export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
     <textarea
       {...props}
       className={cn(
-        "zendo-text zendo-min-h-28 zendo-w-full zendo-rounded-xl zendo-border zendo-border-line zendo-bg-ink zendo-px-3 zendo-py-2 zendo-text-sm zendo-text-cream zendo-outline-none placeholder:zendo-text-muted/70 focus:zendo-border-lime",
+        "zendo-text zendo-min-h-28 zendo-w-full zendo-rounded-xl zendo-border zendo-border-line zendo-bg-ink zendo-px-3 zendo-py-2 zendo-text-sm zendo-text-cream zendo-outline-none zendo-transition placeholder:zendo-text-muted/70 focus:zendo-border-lime",
         props.className,
       )}
     />
@@ -84,7 +84,7 @@ export function Field({ label, hint, error, children }: { label: string; hint?: 
 }
 
 export function Panel({ id, className, children }: { id?: string; className?: string; children: React.ReactNode }) {
-  return <section id={id} className={cn("zendo-rounded-3xl zendo-border zendo-border-line zendo-bg-panel/90 zendo-p-5", className)}>{children}</section>;
+  return <section id={id} className={cn("zendo-rounded-3xl zendo-border zendo-border-line zendo-bg-panel/90 zendo-p-5 zendo-transition", className)}>{children}</section>;
 }
 
 export function MarkLoader({ label }: { label: string }) {

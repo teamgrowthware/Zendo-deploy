@@ -220,7 +220,86 @@ body {
     radial-gradient(720px 420px at -15% 8%, rgba(255, 215, 0, 0.08), transparent 48%),
     #0A0A0A;
   color: #f4f1e6;
-  font-family: Outfit, sans-serif;
+  font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+#content {
+  min-width: 0;
+}
+
+/* Typography and surface conventions shared by public, account, and explorer
+   screens. Components retain their route-specific layouts and data. */
+:where(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+:where(p, li) {
+  text-wrap: pretty;
+}
+
+.zendo-site-footer {
+  margin-top: clamp(4rem, 8vw, 7rem);
+}
+
+.zendo-site-footer > div,
+.zendo-site-footer > p {
+  width: min(100% - 2rem, 84rem);
+  max-width: none;
+  padding-inline: 0;
+}
+
+.zendo-site-footer > div {
+  gap: clamp(2rem, 4vw, 3.5rem);
+  padding-block: clamp(2.75rem, 5vw, 4rem);
+}
+
+.zendo-site-footer > p {
+  padding-bottom: 2.5rem;
+}
+
+.zendo-site-footer a {
+  text-decoration-color: transparent;
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+}
+
+.zendo-site-footer a:hover {
+  text-decoration-color: currentColor;
+}
+
+.zendo-auth-card {
+  min-height: min(44rem, calc(100dvh - 4.5rem));
+  align-content: center;
+  padding-inline: clamp(1.25rem, 4vw, 2rem);
+}
+
+.zendo-auth-card > div:first-of-type + div > h1 {
+  line-height: 1.05;
+}
+
+.zendo-auth-card .zendo-bg-panel\/90 {
+  box-shadow: 0 20px 48px rgba(0, 0, 0, .18);
+}
+
+.zendo-overflow-x-auto {
+  scrollbar-color: #526043 transparent;
+  scrollbar-width: thin;
+}
+
+@media (max-width: 47.99rem) {
+  .zendo-site-footer > div,
+  .zendo-site-footer > p {
+    width: min(100% - 1.5rem, 84rem);
+  }
+
+  .zendo-site-footer > div {
+    padding-block: 2.5rem;
+  }
+
+  .zendo-auth-card {
+    min-height: auto;
+    padding-block: 3rem 4rem;
+  }
 }
 
 ::selection {
