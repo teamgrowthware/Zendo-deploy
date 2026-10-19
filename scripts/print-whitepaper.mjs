@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const version = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
 const papers = JSON.parse(readFileSync(new URL("../docs/papers.json", import.meta.url), "utf8"));
@@ -37,6 +38,7 @@ ${body}
   const input = join(tmpdir(), `zendo-${paper.slug}.html`);
   const htmlPath = new URL(`../public/${paper.slug}.html`, import.meta.url);
   const output = new URL(`../public/${paper.slug}.pdf`, import.meta.url);
+  const outputPath = fileURLToPath(output);
   writeFileSync(input, html);
   writeFileSync(htmlPath, html);
   const printed = spawnSync(chrome, [
@@ -48,7 +50,7 @@ ${body}
     "--timeout=20000",
     "--virtual-time-budget=4000",
     `--user-data-dir=${join(tmpdir(), `zendo-chrome-${paper.slug}`)}`,
-    `--print-to-pdf=${output.pathname}`,
+    `--print-to-pdf=${outputPath}`,
     input,
   ], { stdio: "inherit", timeout: 45000 });
   if (printed.status !== 0) process.exit(printed.status || 1);
