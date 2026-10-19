@@ -20,6 +20,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated Next.js chunks copied into the offline Android demo snapshot.
+    "android/app/src/demo/assets/www/next/static/chunks/**",
   ]),
 ]);
 
