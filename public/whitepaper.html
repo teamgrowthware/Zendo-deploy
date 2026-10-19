@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8" />
-  <title>Zendo white paper 0.9.0 172ad9d0be8d</title>
+  <title>Zendo white paper 0.9.0 77c83f285295</title>
   <style>
     body { font-family: Georgia, "Noto Sans SC", "Noto Sans Devanagari", "Noto Naskh Arabic", serif; color: #1a1a1a; max-width: 680px; margin: 32px auto; line-height: 1.55; }
     h1 { font-family: Arial, "Noto Sans SC", "Noto Sans Devanagari", "Noto Naskh Arabic", sans-serif; font-size: 28px; letter-spacing: 0.04em; color: #1d4ed8; }
@@ -19,8 +19,8 @@
 <h2>What runs</h2>
 <p>One Next.js process serves the site, the wallet, the explorer, and a JSON ledger at <code>data/state.json</code>. A separate Rust binary, <code>zendo-node</code>, keeps its own blocks, gossip, and a small stack machine. The website does not send wallet transfers through that binary. Two data directories are two chains unless you enroll a second validator into the same genesis before the first block.</p>
 <h2>ZendoCoin</h2>
-<p>Ticker $ZCoin. Base supply is 1,000,000,000 with 18 decimals. Founder locks hold 300,000,000: Louis Conner, Co-founder and President, 200,000,000; Prabhat Agrawal 50,000,000; Pratyaksh Lutare 50,000,000. The public allocation is 700,000,000 and is liquid from genesis. It includes the system wallet seed of 100,000, the grant treasury, the launchpad studio, and the remaining public pool. New accounts receive 0 ZCoin. The faucet does not pay at signup. Staking rewards are the only inflation. They are minted when a delegator claims, at the configured annual rate, after the validator commission. Jailing a validator slashes 10 percent of its self-stake and of each delegation into the treasury, and pauses rewards until it is active again. The slash is not refunded. After genesis, the node does not invent trades.</p>
-<p>Supply stays conserved: spendable balances, validator self-stake, delegations, and unbonding equal the base supply plus rewards that have already been issued. The node checks that sum before it writes state.</p>
+<p>Ticker $ZCoin. The total supply is fixed at 1,000,000,000 with 18 decimals. Founder locks hold 300,000,000: Louis Conner, Co-founder and President, 200,000,000; Prabhat Agrawal 50,000,000; Pratyaksh Lutare 50,000,000. The public allocation is 700,000,000 and is liquid from genesis. It includes the system wallet seed of 100,000, the grant treasury, the launchpad studio, and the remaining public pool. New accounts receive 0 ZCoin. The faucet does not pay at signup. Staking rewards are paid from the existing supply when a delegator claims; no additional ZCoin is minted. Jailing a validator slashes 10 percent of its self-stake and of each delegation into the treasury, and pauses rewards until it is active again. The slash is not refunded. After genesis, the node does not invent trades.</p>
+<p>Supply stays conserved: spendable balances, validator self-stake, delegations, and unbonding equal the fixed total supply. The node checks that sum before it writes state.</p>
 <h2>Founder vesting</h2>
 <p>Each founder has a vesting account and a separate wallet, both addresses beginning with znd1. The vesting clock is not set until this app is first served on a public HTTPS host. That instant is stored once and is not a date chosen in advance. Nothing unlocks before that launch, and nothing unlocks during the 120-day cliff after it, including on the cliff day itself. After the cliff, 25 percent of that founder’s own allocation unlocks at each anniversary for four years. The chain moves those coins into that founder wallet by itself. No operator has to start the clock or press a claim. It does not credit the system wallet. Coins that are still locked stay in the vesting account.</p>
 <h2>Launchpad</h2>
@@ -32,7 +32,7 @@
 <h2>The Rust node</h2>
 <p>Configure <code>zendo-node</code> from the command line. The website reads <code>zendo-blockchain.toml</code> for the genesis fees, the validator table, and the chain id <code>zendo-1</code>. Passed votes overlay those fees in the ledger. The Rust process speaks TCP gossip, prefers peers with a lower measured round trip, chooses the longer chain when the common ancestor is still above the finalized height, and meters gas on a stack machine. Programs in the crate cover a token, cliff vesting, a curve, a ballot, an NFT, and an identity registry. The deployer can replace code or roll it back. Equivocation slashes 10 percent once per height. Staking bonds sit at a fixed address. JSON-RPC has no authentication, so keep it on localhost.</p>
 <h2>Fees</h2>
-<p>Gas on transfers and votes, the bonding-curve fee, creation and promotion fees, and staking inflation are the revenue surfaces in this build. Premium RPC raises the free limit of 60 calls a minute to 600. There is no card processor, no fiat payout, and no separate custodial balance.</p>
+<p>Gas on transfers and votes, the bonding-curve fee, and creation and promotion fees are the fee flows in this build. Staking rewards are paid from the existing supply; no additional ZCoin is minted. Premium RPC raises the free limit of 60 calls a minute to 600. There is no card processor, no fiat payout, and no separate custodial balance.</p>
 <p class="meta">End of version 0.9.0.</p>
 
 </body>

@@ -81,7 +81,7 @@ export default async function HomePage() {
                 ["Creator share of a trade", `${data.fees.creatorPct}% of notional`],
                 ["Promote a coin", `${data.fees.promote} Z for 24h`],
                 ["Stake / vote / propose", `${data.fees.stake} / ${data.fees.vote} / ${data.fees.proposal} Z`],
-                ["Staking emission", `${data.fees.apr}% APR before commission`],
+                ["Staking reward rate", `${data.fees.apr}% APR before commission, paid from the existing supply`],
                 ["New wallet", data.fees.airdrop === "0" ? "0 Z. The faucet is closed." : `${data.fees.airdrop} Z from the faucet`],
               ].map(([k, v]) => (
                 <tr key={k} className="zendo-border-t zendo-border-line first:zendo-border-t-0">

@@ -38,7 +38,7 @@ Staking is how ZCoin earns the configured reward. Open Stake from the wallet or 
 
 Delegate at least 1 ZCoin. The stake fee is 0.001 ZCoin in addition to the amount you delegate, so the wallet needs slightly more than 1 ZCoin of spendable balance. An empty new wallet cannot cover that. Receive ZCoin from another address before the first delegation.
 
-After you delegate, the position appears on the same page. Rewards accrue over time and are minted when you press Claim. Full unstake pays accrued rewards in the same step. Unbonding waits two blocks, then the ZCoin returns to the spendable balance. Voting power is your spendable ZCoin plus the amount you still have delegated, so staking does not remove your voice.
+After you delegate, the position appears on the same page. Rewards accrue over time and are paid from the existing ZCoin supply when you press Claim; no additional ZCoin is minted. Full unstake pays accrued rewards in the same step. Unbonding waits two blocks, then the ZCoin returns to the spendable balance. Voting power is your spendable ZCoin plus the amount you still have delegated, so staking does not remove your voice.
 
 ## Vote and propose
 

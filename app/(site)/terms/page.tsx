@@ -17,7 +17,7 @@ export default function Page() {
       <h2 className="zendo-font-display zendo-text-xl zendo-font-bold zendo-text-cream">4. Prohibited use</h2>
       <p>Do not use the launchpad to impersonate a project, run a scam, or upload illegal content. Do not upload an attachment that you do not have the right to share. Operators can hide a coin and jail a validator. Hiding a coin does not unwind trades already recorded.</p>
       <h2 className="zendo-font-display zendo-text-xl zendo-font-bold zendo-text-cream">5. Fees, votes, and the bridge</h2>
-      <p>Fees, emissions, and graduation thresholds start from the config file on the server you are using. A passing governance vote writes one allowed parameter into the ledger. A vote cannot change supply, decimals, or vesting. The Polygon bridge, when an operator configures it, locks ZendoCoin and releases ERC-20 already held by the bridge contract. It does not pay a bank.</p>
+      <p>Fees, staking reward rates, and graduation thresholds start from the config file on the server you are using. A passing governance vote writes one allowed parameter into the ledger. A vote cannot change the fixed supply, decimals, or vesting. The Polygon bridge, when an operator configures it, locks ZendoCoin and releases ERC-20 already held by the bridge contract. It does not pay a bank.</p>
       <h2 className="zendo-font-display zendo-text-xl zendo-font-bold zendo-text-cream">6. Support</h2>
       <p>Support tickets are messages stored on the node. A reply appears in the app. There is no support hotline and no promise of a response time. Public questions go to {CONTACT_EMAIL}.</p>
       <h2 className="zendo-font-display zendo-text-xl zendo-font-bold zendo-text-cream">7. Warranty</h2>

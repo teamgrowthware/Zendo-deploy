@@ -2,7 +2,7 @@
 <html lang="zh-Hans" dir="ltr">
 <head>
   <meta charset="utf-8" />
-  <title>Zendo white paper 0.9.0 536460a2f17b</title>
+  <title>Zendo white paper 0.9.0 27ceae0c6ee1</title>
   <style>
     body { font-family: Georgia, "Noto Sans SC", "Noto Sans Devanagari", "Noto Naskh Arabic", serif; color: #1a1a1a; max-width: 680px; margin: 32px auto; line-height: 1.55; }
     h1 { font-family: Arial, "Noto Sans SC", "Noto Sans Devanagari", "Noto Naskh Arabic", sans-serif; font-size: 28px; letter-spacing: 0.04em; color: #1d4ed8; }
@@ -19,8 +19,8 @@
 <h2>运行的是什么</h2>
 <p>一个 Next.js 进程提供网站、钱包、浏览器，以及位于 <code>data/state.json</code> 的 JSON 账本。另一个 Rust 程序 <code>zendo-node</code> 保存自己的区块、gossip 和一台小型栈机。网站不会把钱包转账交给这个程序。两个数据目录就是两条链，除非你在第一个区块之前把第二个验证者登记进同一份创世状态。</p>
 <h2>ZendoCoin</h2>
-<p>代号 $ZCoin。基础供应量为 1,000,000,000，精度 18 位。创始人锁仓合计 300,000,000：Louis Conner（联合创始人兼总裁）200,000,000，Prabhat Agrawal 50,000,000，Pratyaksh Lutare 50,000,000。公开分配为 700,000,000，创世起即可流动，其中包含系统钱包种子 100,000、资助金库和其余公开池。新账户领取 0 ZCoin。水龙头在注册时不发放。质押奖励是唯一的增发。委托人领取时按配置的年化利率铸造，并先扣除验证者佣金。</p>
-<p>供应量保持守恒：可花费余额、验证者自质押、委托和解除质押，等于基础供应量加上已经发行的奖励。节点在写入状态之前核对这个总和。</p>
+<p>代号 $ZCoin。总供应量固定为 1,000,000,000，精度 18 位。创始人锁仓合计 300,000,000：Louis Conner（联合创始人兼总裁）200,000,000，Prabhat Agrawal 50,000,000，Pratyaksh Lutare 50,000,000。公开分配为 700,000,000，创世起即可流动，其中包含系统钱包种子 100,000、资助金库和其余公开池。新账户领取 0 ZCoin。水龙头在注册时不发放。质押奖励在委托人领取时从现有供应量中支付；不会额外铸造 ZCoin。</p>
+<p>供应量保持守恒：可花费余额、验证者自质押、委托和解除质押，等于固定的总供应量。节点在写入状态之前核对这个总和。</p>
 <h2>创始人归属</h2>
 <p>每位创始人有独立的归属账户和钱包，地址都以 znd1 开头。归属时钟在应用第一次通过公网 HTTPS 对外提供时才写入，只记一次，不是事先选定的日期。在那次公开上线之前没有解锁；上线后的 120 天悬崖期内也没有解锁，悬崖当天也不解锁。悬崖之后，该创始人自己的分配在四年内每个周年解锁 25%。链自己把这些币转入该创始人钱包。运营者不必启动时钟，也不必手动领取。不会记入系统钱包。</p>
 <h2>发射台</h2>
@@ -32,7 +32,7 @@
 <h2>Rust 节点</h2>
 <p>从命令行配置 <code>zendo-node</code>。网站从 <code>zendo-blockchain.toml</code> 读取费用、验证者表和链标识 <code>zendo-1</code>。Rust 进程使用 TCP gossip，优先选择测得往返更短的对等节点，在共同祖先仍高于最终确定高度时选择更长的链，并在栈机上计量 gas。包内程序包括代币、悬崖归属、曲线、投票、NFT 和身份登记。部署者可以替换代码或回滚。双重签名在每个高度只罚没余额的 10% 一次。质押债券放在一个固定地址。JSON-RPC 没有认证，所以请把它留在 localhost。</p>
 <h2>费用</h2>
-<p>转账和投票的 gas、曲线手续费、创建和推广费，以及质押增发，是这个构建的收入来源。高级 RPC 把每分钟 60 次的免费限额提高到 600 次。没有银行卡处理、没有法币兑付，也没有单独的托管余额。</p>
+<p>转账和投票的 gas、曲线手续费、创建和推广费是这个构建的费用流。质押奖励从现有供应量中支付；不会额外铸造 ZCoin。高级 RPC 把每分钟 60 次的免费限额提高到 600 次。没有银行卡处理、没有法币兑付，也没有单独的托管余额。</p>
 <p class="meta">版本 0.9.0 结束。</p>
 
 </body>

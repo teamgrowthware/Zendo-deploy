@@ -12,15 +12,15 @@ export default async function Page() {
   const coin = await zcoin();
   return (
     <div className="zendo-mx-auto zendo-max-w-3xl zendo-px-4 zendo-py-12">
-      <PageIntro mark="coin" kicker={coin.symbol} title="ZendoCoin" body={coin.launched ? `${coin.decimals} decimals. Base supply plus staking emissions. Ticker ${coin.symbol}. Louis Conner is Co-founder and President. Public launch started ${new Date(coin.anchor || 0).toUTCString()}. The 120-day cliff runs from that moment.` : `${coin.decimals} decimals. Base supply plus staking emissions. Ticker ${coin.symbol}. Louis Conner is Co-founder and President. Public launch has not happened, so founder coins stay locked. The 120-day cliff starts when this app is first live for public use.`} />
+      <PageIntro mark="coin" kicker={coin.symbol} title="ZendoCoin" body={coin.launched ? `Fixed total supply of ${coin.supply} ZCoin with ${coin.decimals} decimals. Staking rewards are paid from the existing supply; no additional ZCoin is minted. Ticker ${coin.symbol}. Louis Conner is Co-founder and President. Public launch started ${new Date(coin.anchor || 0).toUTCString()}. The 120-day cliff runs from that moment.` : `Fixed total supply of ${coin.supply} ZCoin with ${coin.decimals} decimals. Staking rewards are paid from the existing supply; no additional ZCoin is minted. Ticker ${coin.symbol}. Louis Conner is Co-founder and President. Public launch has not happened, so founder coins stay locked. The 120-day cliff starts when this app is first live for public use.`} />
       <div className="zendo-mb-4 zendo-flex zendo-flex-wrap zendo-gap-3">
         <ZendoCoinZipLink className="zendo-pointer zendo-inline-flex zendo-h-12 zendo-items-center zendo-justify-center zendo-rounded-full zendo-bg-gold zendo-px-5 zendo-text-base zendo-font-semibold zendo-text-ink">Download ZendoCoin-Polygon_Mainnet.zip</ZendoCoinZipLink>
         <Link href="/contracts" className="zendo-pointer zendo-inline-flex zendo-h-12 zendo-items-center zendo-justify-center zendo-rounded-full zendo-bg-lime zendo-px-5 zendo-text-base zendo-font-semibold zendo-text-ink">Copy the contracts</Link>
       </div>
       <div className="zendo-grid zendo-gap-3 zendo-sm:zendo-grid-cols-2">
         {[
-          ["Supply in circulation math", coin.supply],
-          ["Staking emissions minted", coin.issuedRewards],
+          ["Fixed total supply", coin.supply],
+          ["Staking rewards paid", coin.issuedRewards],
           ["Founder allocation", coin.founder],
           ["Public allocation", coin.publicAllocation],
           ["Unlocked by the schedule", coin.vested],
@@ -43,13 +43,13 @@ export default async function Page() {
         <p className="zendo-mt-2 zendo-text-sm zendo-text-muted">{coin.launched ? `Public launch is recorded. Nothing vests during the ${coin.cliffDays}-day cliff, including the cliff day.` : `The launch date is not set. Nothing unlocks until Zendo is live online for public use.`} After that, each founder unlocks 25% of their own allocation each year for {coin.years} years. The chain moves those coins into the founder wallets on its own. No operator has to start the clock or press a claim.</p>
         <div className="zendo-mt-4 zendo-grid zendo-gap-3">
           {coin.founders.map((founder) => (
-            <div key={founder.id} className="zendo-rounded-2xl zendo-border zendo-border-line zendo-p-3 zendo-text-sm">
+            <div key={founder.id} className="zendo-rounded-2xl zendo-border zendo-border-line zendo-p-4 zendo-text-sm">
               <p className="zendo-font-semibold">{founder.name}</p>
               <p className="zendo-text-xs zendo-text-gold">{founder.role}</p>
               <p className="zendo-mt-1 zendo-text-muted">Allocation {founder.allocation} · vested {founder.vested} · claimed {founder.claimed} · claimable {founder.claimable} Z</p>
-              <p className="zendo-mt-1 zendo-break-all zendo-text-xs zendo-text-muted">Polygon {founder.polygon}</p>
-              <p className="zendo-mt-1 zendo-break-all zendo-text-xs zendo-text-muted">Vesting {founder.vestingAddress}</p>
-              <p className="zendo-mt-1 zendo-break-all zendo-text-xs zendo-text-muted">Wallet {founder.walletAddress}</p>
+              <p className="zendo-mt-3 zendo-break-all zendo-font-mono zendo-text-xs zendo-text-muted">Polygon {founder.polygon}</p>
+              <p className="zendo-mt-1 zendo-break-all zendo-font-mono zendo-text-xs zendo-text-muted">Vesting {founder.vestingAddress}</p>
+              <p className="zendo-mt-1 zendo-break-all zendo-font-mono zendo-text-xs zendo-text-muted">Wallet {founder.walletAddress}</p>
             </div>
           ))}
         </div>
