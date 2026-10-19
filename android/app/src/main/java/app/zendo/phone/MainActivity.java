@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
+import android.webkit.CookieManager;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -98,6 +99,10 @@ public class MainActivity extends Activity {
     private void initializeWebView(FrameLayout container) {
         Log.i(TAG, "Creating bundled WebView");
         web = new WebView(this);
+        // The hosted app uses same-origin, secure HTTP-only session cookies.
+        // Make first-party cookie acceptance and persistence explicit for the
+        // standalone WebView process; no third-party cookies are enabled.
+        CookieManager.getInstance().setAcceptCookie(true);
         container.addView(web, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
@@ -370,6 +375,12 @@ public class MainActivity extends Activity {
 
     private boolean isHttps(Uri uri) {
         return uri != null && "https".equalsIgnoreCase(uri.getScheme()) && uri.getHost() != null && !uri.getHost().isEmpty();
+    }
+
+    @Override
+    protected void onPause() {
+        CookieManager.getInstance().flush();
+        super.onPause();
     }
 
     @Override
