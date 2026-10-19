@@ -295,7 +295,8 @@ html[data-zendo-app="android"] .zendo-mobile-app-nav a {
 
 html[data-zendo-app="android"] .zendo-mobile-app-nav svg { width: 1.2rem; height: 1.2rem; }
 html[data-zendo-app="android"] .zendo-mobile-app-nav a.is-active { background: #1b2016; color: #c8ff00; }
-html[data-zendo-app="android"] .zendo-auth-card-compact-branding .zendo-auth-card-logo { display: none; }
+/* The native shell supplies the sole wordmark across both guest and auth views. */
+html[data-zendo-app="android"] .zendo-auth-card-logo { display: none; }
 
 @media (max-width: 430px) {
   html[data-zendo-app="android"] #content > * { min-width: 0; }
