@@ -18,7 +18,7 @@ import { SearchBox } from "./search-box";
 export function Logo({ className }: { compact?: boolean; className?: string }) {
   return (
     <Link href="/" className={cn("zendo-inline-flex zendo-items-center", className)} aria-label="Zendo">
-      <Image src="/brand/zendo-wordmark.svg" alt="ZENDO" width={148} height={32} className="zendo-h-8 zendo-w-auto" priority />
+      <Image src="/brand/zendo-wordmark.svg" alt="ZENDO" width={148} height={32} className="zendo-h-8 zendo-w-auto" priority unoptimized />
     </Link>
   );
 }
