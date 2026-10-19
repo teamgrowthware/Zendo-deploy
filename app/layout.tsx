@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/chrome";
 import { MobileAppNav } from "@/components/mobile-app-nav";
 import { ThemeToaster } from "@/components/theme";
 import { notePublicRequest } from "@/lib/engine";
+import { currentUser } from "@/lib/auth";
 import "./globals.css";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   await notePublicRequest(await headers());
+  const authenticated = Boolean(await currentUser());
   return (
     <html lang="en" className={`${outfit.variable} ${syne.variable} ${mono.variable} zendo-h-full zendo-antialiased`} data-theme="dark" suppressHydrationWarning>
       <body className="zendo-font-outfit zendo-flex zendo-min-h-full zendo-flex-col">
@@ -37,7 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
         <SiteHeader />
         <div id="content" className="zendo-flex zendo-flex-1 zendo-flex-col">{children}</div>
-        <MobileAppNav />
+        <MobileAppNav authenticated={authenticated} />
         <ThemeToaster />
       </body>
     </html>
